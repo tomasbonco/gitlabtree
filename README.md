@@ -7,7 +7,7 @@ This is browser extension for Chrome / Firefox / Opera (and maybe IE as well :) 
 ## Installation
 
 [Chrome](https://chrome.google.com/webstore/detail/gitlab-tree-view/pijacafkghdlolapcjpmiodgbnpinicn)
-● Firefox (soon)
+● [Firefox](https://addons.mozilla.org/sk/firefox/addon/gitlab-tree-view/)
 ● Opera (soon)
 
 
