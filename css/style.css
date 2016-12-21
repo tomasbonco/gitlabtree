@@ -1,0 +1,77 @@
+.gitlab-tree-plugin-wrapper
+{
+    display: flex;
+}
+
+.gitlab-tree-plugin-left
+{
+    flex: 0 0 250px;
+    border: 1px solid #e5e5e5;
+    margin-right: 15px;
+    overflow: auto;
+}
+
+.gitlab-tree-plugin-left .folder
+{
+    padding-left: 20px;
+    margin-bottom: 10px;
+}
+
+
+.gitlab-tree-plugin-left .folder .holder
+{
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+.gitlab-tree-plugin-left .folder .holder:before
+{
+    font: normal normal normal 14px/1 FontAwesome;
+    content: "\f114";
+    padding-right: 7px;
+}
+
+.gitlab-tree-plugin-left > .folder
+{
+    padding-left: 0px;
+}
+
+.gitlab-tree-plugin-left > .folder > .folder
+{
+    padding-left: 15px;
+}
+
+.gitlab-tree-plugin-left > .folder > .holder
+{
+    background-color: #fafafa;
+    border-bottom: 1px solid #e5e5e5;
+    margin: 0;
+    text-align: left;
+    padding: 10px 16px;
+    word-wrap: break-word;
+    border-radius: 3px 3px 0 0;
+    font-weight: bold;
+
+    margin-bottom: 15px;
+}
+
+.gitlab-tree-plugin-left > .folder > .holder:before
+{
+    content: "\f07c";
+}
+
+.gitlab-tree-plugin-left .file
+{
+    padding-left: 20px;
+}
+
+.gitlab-tree-plugin-left a
+{
+    display: block;
+}
+
+.gitlab-tree-plugin-right
+{
+    flex: 0 0 1;
+}
