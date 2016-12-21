@@ -1,14 +1,21 @@
 {
-  "name": "GitLab - Tree view",
+  "name": "GitLab - Tree view for code",
   "homepage_url": "https://github.com/tomasbonco/gitlabtree",
   "author": "Tomáš Bončo",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "manifest_version": 2,
   "description": "Provides folder structure view for code in GitLab.",
   "icons": {
     "16": "icons/icon16.png",
     "48": "icons/icon48.png",
     "128": "icons/icon128.png"
+  },
+   "page_action": {
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
   },
   "permissions": [
     "activeTab"
