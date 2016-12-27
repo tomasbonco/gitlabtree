@@ -26,7 +26,10 @@ class GitLabTree
 		// Detection if we have any files to generate tree from
 
 		const files: HTMLElement = document.querySelector( '.files' ) as HTMLElement;
-		this.fileHolders = document.querySelectorAll( '.file-holder' );
+	
+		if ( ! files ) { return; }
+
+		this.fileHolders = files.querySelectorAll( '.file-holder' );
 		if ( ! files || this.fileHolders.length === 0 ) { return; }
 
 		files.classList.add( 'gitlab-tree-plugin' );
@@ -39,9 +42,10 @@ class GitLabTree
 		this.strippedFileNames = this.removePathPrefix( this.fileNames, this.pathPrefix );
 
 
+
 		// Create and display DOM
 
-		const fileNamesDOM: HTMLDivElement = this.convertFolderStructureToDOM( this.pathPrefix, this.createFolderStructure( this.fileNames ) )
+		const fileNamesDOM: HTMLDivElement = this.convertFolderStructureToDOM( this.pathPrefix, this.createFolderStructure( this.strippedFileNames ) )
 
 		this.leftElement.appendChild( fileNamesDOM )
 		files.appendChild( this.wrapperElement );
@@ -106,7 +110,7 @@ class GitLabTree
 		for ( let i: number = 0; i < this.fileHolders.length; i++ )
 		{
 			let fileHolder: HTMLElement = this.fileHolders[i] as HTMLElement;
-			let fileName: string = fileHolder.querySelector( '.file-title strong' ).innerHTML.trim();
+			let fileName: string = fileHolder.querySelector( '.file-title strong' ).textContent.trim();
 			
 			fileNames.push( fileName );
 			files.removeChild( fileHolder );
@@ -136,6 +140,12 @@ class GitLabTree
 
 		let sourcePathParts: string[] = fileNames[0].split('/');
 
+		if ( fileNames.length === 1 )
+		{
+			sourcePathParts.pop();
+			return sourcePathParts.join('/');
+		}
+
 		for ( let i: number = 1; i < fileNames.length; i++ )
 		{
 			let filePathParts: string[] = fileNames[i].split( '/' );
@@ -163,6 +173,11 @@ class GitLabTree
 	 */
 	removePathPrefix( fileNames: string[], prefix: string ): string[]
 	{
+		if ( prefix.length === 0 )
+		{
+			return fileNames.slice( 0 );
+		}
+
 		let output: string[] = [];
 
 		for ( let fileName of fileNames )
@@ -239,7 +254,7 @@ class GitLabTree
 		let holder: HTMLDivElement = document.createElement( 'div' );
 		holder.classList.add( 'holder' );
 		holder.setAttribute( 'title', folderName );
-		holder.innerHTML = folderName;
+		holder.textContent = folderName;
 		root.appendChild( holder );
 
 		let files: HTMLAnchorElement[] = [];
@@ -256,7 +271,7 @@ class GitLabTree
 					let file: HTMLAnchorElement = document.createElement( 'a' );
 					file.setAttribute( 'href', `#diff-${ entry }` );
 					file.classList.add( 'file' );
-					file.innerHTML = name;
+					file.textContent = name;
 
 					files.push( file );
 				}
