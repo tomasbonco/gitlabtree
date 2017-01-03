@@ -3,12 +3,13 @@ GitLab code tree view
 
 This is browser extension for Chrome / Firefox / Opera (and maybe IE as well :) ) that provides tree view for code in GitLab (must have for code reviews!). 
 
+![Image of plugin](https://github.com/tomasbonco/gitlabtree/blob/master/screenshot.png)
 
 ## Installation
 
 [Chrome](https://chrome.google.com/webstore/detail/gitlab-tree-view/pijacafkghdlolapcjpmiodgbnpinicn)
-● [Firefox](https://addons.mozilla.org/sk/firefox/addon/gitlab-tree-view/)
-● Opera (soon)
+● [Firefox](https://addons.mozilla.org/firefox/addon/gitlab-tree-view/)
+● [Opera](https://addons.opera.com/extensions/details/gitlab-tree-view)
 
 
 ## Contribution
