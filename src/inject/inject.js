@@ -1,5 +1,9 @@
 var GitLabTree = (function () {
     function GitLabTree() {
+        this.wrapperElement = document.createElement('div');
+        this.leftElement = document.createElement('div');
+        this.rightElement = document.createElement('div');
+        this.lastActive = -1;
         this.init();
         // Detection if we are on GitLab page
         var isGitLab = document.querySelector('meta[content="GitLab"]');
@@ -38,16 +42,9 @@ var GitLabTree = (function () {
         window.removeEventListener('hashchange', this.hashChangeListener);
     };
     /**
-     * Resets all variables, creates required DOM elements.
+     * Creates required DOM elements.
      */
     GitLabTree.prototype.init = function () {
-        this.pathPrefix = '';
-        this.fileHolders;
-        this.fileNames = [];
-        this.strippedFileNames = [];
-        this.wrapperElement = document.createElement('div');
-        this.leftElement = document.createElement('div');
-        this.rightElement = document.createElement('div');
         this.wrapperElement.appendChild(this.leftElement);
         this.wrapperElement.appendChild(this.rightElement);
         this.wrapperElement.classList.add('gitlab-tree-plugin-wrapper');
@@ -68,6 +65,8 @@ var GitLabTree = (function () {
             var fileName = fileHolder.querySelector('.file-title strong').textContent.trim();
             fileNames.push(fileName);
             files.removeChild(fileHolder);
+            this.rightElement.appendChild(fileHolder);
+            fileHolder.classList.add('gitlab-tree-plugin-hidden');
         }
         return fileNames;
     };
@@ -214,8 +213,11 @@ var GitLabTree = (function () {
      * @param {number} id - id of file to be shown
      */
     GitLabTree.prototype.showFile = function (id) {
-        this.rightElement.innerHTML = '';
-        this.rightElement.appendChild(this.fileHolders[id]);
+        if (this.lastActive !== -1) {
+            this.fileHolders[this.lastActive].classList.add('gitlab-tree-plugin-hidden');
+        }
+        this.fileHolders[id].classList.remove('gitlab-tree-plugin-hidden');
+        this.lastActive = id;
     };
     return GitLabTree;
 }());

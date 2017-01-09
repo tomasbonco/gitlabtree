@@ -5,9 +5,11 @@ class GitLabTree
 	fileNames: string[];
 	strippedFileNames: string[];
 
-	wrapperElement: HTMLDivElement;
-	leftElement: HTMLDivElement;
-	rightElement: HTMLDivElement;
+	wrapperElement: HTMLDivElement = document.createElement( 'div' );
+	leftElement: HTMLDivElement = document.createElement( 'div' );
+	rightElement: HTMLDivElement = document.createElement( 'div' );
+	
+	lastActive: number = -1;
 
 	hashChangeListener: () => void;
 
@@ -74,19 +76,10 @@ class GitLabTree
 
 	
 	/**
-	 * Resets all variables, creates required DOM elements.
+	 * Creates required DOM elements.
 	 */
 	init(): void
 	{
-		this.pathPrefix = '';
-		this.fileHolders;
-		this.fileNames = [];
-		this.strippedFileNames = [];
-
-		this.wrapperElement = document.createElement( 'div' );
-		this.leftElement = document.createElement( 'div' );
-		this.rightElement = document.createElement( 'div' );
-
 		this.wrapperElement.appendChild( this.leftElement );
 		this.wrapperElement.appendChild( this.rightElement );
 
@@ -114,6 +107,9 @@ class GitLabTree
 			
 			fileNames.push( fileName );
 			files.removeChild( fileHolder );
+			this.rightElement.appendChild( fileHolder );
+
+			fileHolder.classList.add( 'gitlab-tree-plugin-hidden' );
 		}
 
 		return fileNames;
@@ -327,8 +323,14 @@ class GitLabTree
 	 */
 	showFile( id: number ): void
 	{
-		this.rightElement.innerHTML = '';
-		this.rightElement.appendChild( this.fileHolders[ id ] );
+		if ( this.lastActive !== -1 )
+		{
+			( this.fileHolders[ this.lastActive ] as HTMLElement ).classList.add( 'gitlab-tree-plugin-hidden' );
+		}
+		
+		( this.fileHolders[ id ] as HTMLElement ).classList.remove( 'gitlab-tree-plugin-hidden' );
+
+		this.lastActive = id;
 	}
 }
 

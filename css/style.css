@@ -3,6 +3,11 @@
     display: flex;
 }
 
+.gitlab-tree-plugin-hidden
+{
+    display: none;
+}
+
 .gitlab-tree-plugin-left
 {
     flex: 0 0 250px;
