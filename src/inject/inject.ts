@@ -1,15 +1,27 @@
+const CSS_PREFIX = 'gitlab-tree-plugin';
+
+enum EFileState { ADDED, UPDATED, RENAMED, DELETED };
+
+interface IMetadata
+{
+	type: EFileState; // 'renamed' | 'deleted' | 'edit' | 'new';
+	hash: string;
+	filename: string;
+}
+
 class GitLabTree
 {
 	pathPrefix: string;
 	fileHolders: NodeList;
 	fileNames: string[];
 	strippedFileNames: string[];
+	metadata: IMetadata[];
 
 	wrapperElement: HTMLDivElement = document.createElement( 'div' );
 	leftElement: HTMLDivElement = document.createElement( 'div' );
 	rightElement: HTMLDivElement = document.createElement( 'div' );
 	
-	lastActive: number = -1;
+	lastActive: string = '';
 
 	hashChangeListener: () => void;
 
@@ -34,12 +46,20 @@ class GitLabTree
 		this.fileHolders = files.querySelectorAll( '.file-holder' );
 		if ( ! files || this.fileHolders.length === 0 ) { return; }
 
-		files.classList.add( 'gitlab-tree-plugin' );
+		files.classList.add( CSS_PREFIX );
+		this.copyAndHideFiles( files );
+
+
+		// Obtain metadata
+
+		this.metadata = this.obtainMetadata();
+		if ( this.metadata.length === 0 ) { return; }
+		const filenames: string[] = this.metadata.map( m => m.filename );
 
 
 		// Analyze filenames
 
-		this.fileNames = this.collectFileNames( files );
+		this.fileNames = filenames;
 		this.pathPrefix = this.getPrefixPath( this.fileNames );
 		this.strippedFileNames = this.removePathPrefix( this.fileNames, this.pathPrefix );
 
@@ -55,8 +75,8 @@ class GitLabTree
 
 		// Show file based on hash id
 
-		const currentFileId: number = this.getIdFromHash( location.hash ) || 0;
-		this.showFile( currentFileId );
+		const currentFileHash: string = location.hash;
+		this.showFile( currentFileHash );
 
 
 		// Add listener for changes
@@ -83,36 +103,82 @@ class GitLabTree
 		this.wrapperElement.appendChild( this.leftElement );
 		this.wrapperElement.appendChild( this.rightElement );
 
-		this.wrapperElement.classList.add( 'gitlab-tree-plugin-wrapper' );
-		this.leftElement.classList.add( 'gitlab-tree-plugin-left' );
-		this.rightElement.classList.add( 'gitlab-tree-plugin-right' );
+		this.wrapperElement.classList.add( CSS_PREFIX + '-wrapper' );
+		this.leftElement.classList.add( CSS_PREFIX + '-left' );
+		this.rightElement.classList.add( CSS_PREFIX + '-right' );
+	}
+
+	/**
+	 * Collects basic information about files - their names, their hashes, and happend to them.
+	 * 
+	 * @return {IMetadata} - collected metadata
+	 */
+	obtainMetadata(): IMetadata[]
+	{
+		let metadata: IMetadata[] = [];
+		let rawFilesMetadata: HTMLElement[] = Array.prototype.slice.call( document.querySelectorAll( '.file-stats li' ));
+
+		for ( let rawFileMetadata of rawFilesMetadata )
+		{
+			const typeRaw: string[] = Array.prototype.slice.call( rawFileMetadata.querySelector(  'span:first-child' ).classList );
+			const hash: string = rawFileMetadata.querySelector( 'a' ).getAttribute('href');
+			let filename: string = rawFileMetadata.querySelector( 'a' ).textContent.trim();
+			let type: EFileState = EFileState.UPDATED;;
+			
+
+			// When file renamed, show renamed file
+
+			if ( filename.indexOf('→') !== -1 )
+			{
+				filename = filename.split( '→' )[1].trim();
+			}
+
+
+			// Convert type
+
+			if ( ~typeRaw.indexOf( 'add-file' )) { type = EFileState.ADDED;	}
+			if ( ~typeRaw.indexOf( 'renamed-file' )) { type = EFileState.RENAMED; }
+			if ( ~typeRaw.indexOf( 'deleted-file' )) { type = EFileState.DELETED; }
+
+
+			// Save
+
+			const fileMetadata: IMetadata = { type, hash, filename };
+			metadata.push( fileMetadata );
+		}
+
+		return metadata;
 	}
 
 
 	/**
-	 * It loops through files listed (DOM elements; consists of filename and content),
-	 * saves their filenames and removes them from DOM.
+	 * Returns metadata by index.
+	 * 
+	 * @param {number} index - index
+	 * @return {IMetadata} - metadata
+	 */
+	getMetadata( index: number ): IMetadata
+	{
+		return this.metadata[ index ];
+	}
+
+
+	/**
+	 * It loops through files listed (DOM elements), copies them to new DOM structure,
+	 * and hides them.
 	 * 
 	 * @param {HTMLElement} files - DOM element with files listed
-	 * @return {string[]} - collected file names
 	 */
-	collectFileNames( files: HTMLElement ): string[]
+	copyAndHideFiles( files: HTMLElement ): void
 	{
-		let fileNames: string[] = [];
-
 		for ( let i: number = 0; i < this.fileHolders.length; i++ )
 		{
 			let fileHolder: HTMLElement = this.fileHolders[i] as HTMLElement;
-			let fileName: string = fileHolder.querySelector( '.file-title strong' ).textContent.trim();
-			
-			fileNames.push( fileName );
 			files.removeChild( fileHolder );
 			this.rightElement.appendChild( fileHolder );
 
-			fileHolder.classList.add( 'gitlab-tree-plugin-hidden' );
+			fileHolder.classList.add( CSS_PREFIX + '-hidden' );
 		}
-
-		return fileNames;
 	}
 
 
@@ -264,11 +330,24 @@ class GitLabTree
 
 				if ( typeof entry === 'number' )
 				{
+					const metadata = this.getMetadata( entry );
 					let file: HTMLAnchorElement = document.createElement( 'a' );
-					file.setAttribute( 'href', `#diff-${ entry }` );
+					file.setAttribute( 'href', metadata.hash );
 					file.classList.add( 'file' );
 					file.textContent = name;
 
+					console.log( metadata )
+
+					let fileStateClass;
+					switch ( metadata.type )
+					{
+						case EFileState.ADDED: fileStateClass = CSS_PREFIX + '-file-added'; break;
+						case EFileState.RENAMED: fileStateClass = CSS_PREFIX + '-file-renamed'; break;
+						case EFileState.DELETED: fileStateClass = CSS_PREFIX + '-file-deleted'; break;
+						default: fileStateClass = CSS_PREFIX + '-file-updated'; break;
+					}
+
+					file.classList.add( fileStateClass );
 					files.push( file );
 				}
 
@@ -293,26 +372,7 @@ class GitLabTree
 	hashChanged(): void
 	{
 		let newHash: string = location.hash;
-		let fileId: number = this.getIdFromHash( newHash ) || 0
-		
-		this.showFile( fileId );
-	}
-
-
-	/**
-	 * Returns id of file from hash.
-	 * 
-	 * @param {string} hash - hash
-	 * @return {number} - id of file
-	 */
-	getIdFromHash( hash: string ): number
-	{
-		if ( hash.match('diff-') )
-		{
-			return parseInt( hash.substr( hash.charAt(0) === '#' ? '#diff-'.length : 'diff-'.length ) );
-		}
-
-		return;
+		this.showFile( newHash );
 	}
 
 
@@ -321,16 +381,36 @@ class GitLabTree
 	 * 
 	 * @param {number} id - id of file to be shown
 	 */
-	showFile( id: number ): void
+	showFile( hash?: string ): void
 	{
-		if ( this.lastActive !== -1 )
+		if ( this.metadata.length === 0 )
 		{
-			( this.fileHolders[ this.lastActive ] as HTMLElement ).classList.add( 'gitlab-tree-plugin-hidden' );
+			return;
+		}
+
+		if ( this.lastActive )
+		{
+			this.getFileHolderByHash( this.lastActive ).classList.add( CSS_PREFIX + '-hidden' );
+			this.getFileLinkByHash( this.lastActive ).classList.remove( CSS_PREFIX + '-file-active' );
 		}
 		
-		( this.fileHolders[ id ] as HTMLElement ).classList.remove( 'gitlab-tree-plugin-hidden' );
+		
+		hash = this.metadata.filter( m => m.hash === hash ) ? hash : this.metadata[0].hash; // if hash is invalid use default hash
 
-		this.lastActive = id;
+		this.getFileHolderByHash( hash ).classList.remove( CSS_PREFIX + '-hidden' );
+		this.getFileLinkByHash( hash ).classList.add( CSS_PREFIX + '-file-active' );
+
+		this.lastActive = hash;
+	}
+
+	getFileHolderByHash( hash: string ): HTMLElement
+	{
+		return this.rightElement.querySelector( `[id='${ hash.substr(1) }']` ) as HTMLElement;
+	}
+
+	getFileLinkByHash( hash: string ): HTMLElement
+	{
+		return this.leftElement.querySelector( `[href='${ hash }']` ) as HTMLElement;
 	}
 }
 
@@ -345,7 +425,7 @@ function checkSiteChange(): void
 {
 	let files: Element = document.querySelector( '.files' );
 
-	if ( files && ! files.classList.contains( 'gitlab-tree-plugin' ) )
+	if ( files && ! files.classList.contains( CSS_PREFIX ) )
 	{
 		instance.teardown();
 		instance = new GitLabTree();

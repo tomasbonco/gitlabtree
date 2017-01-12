@@ -80,3 +80,25 @@
 {
     flex: 0 0 1;
 }
+
+.gitlab-tree-plugin-file-renamed, .gitlab-tree-plugin-file-renamed:hover
+{
+    color: #d90;
+}
+
+.gitlab-tree-plugin-file-deleted, .gitlab-tree-plugin-file-deleted:hover
+{
+    color: #d12f19;
+}
+
+.gitlab-tree-plugin-file-added, .gitlab-tree-plugin-file-added:hover
+{
+    color: #4a2;
+}
+
+.gitlab-tree-plugin-file-active
+{
+    color: #000;
+    font-weight: bold;
+    pointer-events: none;
+}
