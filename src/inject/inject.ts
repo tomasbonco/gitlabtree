@@ -336,8 +336,6 @@ class GitLabTree
 					file.classList.add( 'file' );
 					file.textContent = name;
 
-					console.log( metadata )
-
 					let fileStateClass;
 					switch ( metadata.type )
 					{
@@ -395,7 +393,7 @@ class GitLabTree
 		}
 		
 		
-		hash = this.metadata.filter( m => m.hash === hash ) ? hash : this.metadata[0].hash; // if hash is invalid use default hash
+		hash = this.metadata.filter( m => m.hash === hash ).length > 0 ? hash : this.metadata[0].hash; // if hash is invalid use default hash
 
 		this.getFileHolderByHash( hash ).classList.remove( CSS_PREFIX + '-hidden' );
 		this.getFileLinkByHash( hash ).classList.add( CSS_PREFIX + '-file-active' );

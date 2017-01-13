@@ -20,7 +20,7 @@ var GitLabTree = (function () {
             return;
         }
         // Detection if we have any files to generate tree from
-        var files = document.querySelector('.files');
+        var files = document.querySelector('.files'), as = HTMLElement;
         if (!files) {
             return;
         }
@@ -75,8 +75,8 @@ var GitLabTree = (function () {
     GitLabTree.prototype.obtainMetadata = function () {
         var metadata = [];
         var rawFilesMetadata = Array.prototype.slice.call(document.querySelectorAll('.file-stats li'));
-        for (var _i = 0, rawFilesMetadata_1 = rawFilesMetadata; _i < rawFilesMetadata_1.length; _i++) {
-            var rawFileMetadata = rawFilesMetadata_1[_i];
+        for (var _i = 0; _i < rawFilesMetadata.length; _i++) {
+            var rawFileMetadata = rawFilesMetadata[_i];
             var typeRaw = Array.prototype.slice.call(rawFileMetadata.querySelector('span:first-child').classList);
             var hash = rawFileMetadata.querySelector('a').getAttribute('href');
             var filename = rawFileMetadata.querySelector('a').textContent.trim();
@@ -119,7 +119,7 @@ var GitLabTree = (function () {
      */
     GitLabTree.prototype.copyAndHideFiles = function (files) {
         for (var i = 0; i < this.fileHolders.length; i++) {
-            var fileHolder = this.fileHolders[i];
+            var fileHolder = this.fileHolders[i], as = HTMLElement;
             files.removeChild(fileHolder);
             this.rightElement.appendChild(fileHolder);
             fileHolder.classList.add(CSS_PREFIX + '-hidden');
@@ -166,8 +166,8 @@ var GitLabTree = (function () {
             return fileNames.slice(0);
         }
         var output = [];
-        for (var _i = 0, fileNames_1 = fileNames; _i < fileNames_1.length; _i++) {
-            var fileName = fileNames_1[_i];
+        for (var _i = 0; _i < fileNames.length; _i++) {
+            var fileName = fileNames[_i];
             output.push(fileName.substring((prefix + '/').length));
         }
         return output;
@@ -231,7 +231,6 @@ var GitLabTree = (function () {
                     file.setAttribute('href', metadata.hash);
                     file.classList.add('file');
                     file.textContent = name_1;
-                    console.log(metadata);
                     var fileStateClass = void 0;
                     switch (metadata.type) {
                         case EFileState.ADDED:
@@ -280,19 +279,23 @@ var GitLabTree = (function () {
             this.getFileHolderByHash(this.lastActive).classList.add(CSS_PREFIX + '-hidden');
             this.getFileLinkByHash(this.lastActive).classList.remove(CSS_PREFIX + '-file-active');
         }
-        hash = this.metadata.filter(function (m) { return m.hash === hash; }) ? hash : this.metadata[0].hash; // if hash is invalid use default hash
+        hash = this.metadata.filter(function (m) { return m.hash === hash; }).length > 0 ? hash : this.metadata[0].hash; // if hash is invalid use default hash
         this.getFileHolderByHash(hash).classList.remove(CSS_PREFIX + '-hidden');
         this.getFileLinkByHash(hash).classList.add(CSS_PREFIX + '-file-active');
         this.lastActive = hash;
     };
     GitLabTree.prototype.getFileHolderByHash = function (hash) {
         return this.rightElement.querySelector("[id='" + hash.substr(1) + "']");
+        as;
+        HTMLElement;
     };
     GitLabTree.prototype.getFileLinkByHash = function (hash) {
         return this.leftElement.querySelector("[href='" + hash + "']");
+        as;
+        HTMLElement;
     };
     return GitLabTree;
-}());
+})();
 var instance = new GitLabTree();
 /**
  * This is for fake AJAX re-renders of the page.
