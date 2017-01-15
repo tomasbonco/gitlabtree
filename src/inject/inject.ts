@@ -7,6 +7,7 @@ interface IMetadata
 	type: EFileState; // 'renamed' | 'deleted' | 'edit' | 'new';
 	hash: string;
 	filename: string;
+	commented: boolean;
 }
 
 class GitLabTree
@@ -54,12 +55,12 @@ class GitLabTree
 
 		this.metadata = this.obtainMetadata();
 		if ( this.metadata.length === 0 ) { return; }
-		const filenames: string[] = this.metadata.map( m => m.filename );
+		this.obtainCommentedFiles();
 
 
 		// Analyze filenames
 
-		this.fileNames = filenames;
+		this.fileNames = this.metadata.map( m => m.filename );
 		this.pathPrefix = this.getPrefixPath( this.fileNames );
 		this.strippedFileNames = this.removePathPrefix( this.fileNames, this.pathPrefix );
 
@@ -108,6 +109,7 @@ class GitLabTree
 		this.rightElement.classList.add( CSS_PREFIX + '-right' );
 	}
 
+
 	/**
 	 * Collects basic information about files - their names, their hashes, and happend to them.
 	 * 
@@ -136,18 +138,33 @@ class GitLabTree
 
 			// Convert type
 
-			if ( ~typeRaw.indexOf( 'add-file' )) { type = EFileState.ADDED;	}
+			if ( ~typeRaw.indexOf( 'new-file' )) { type = EFileState.ADDED;	}
 			if ( ~typeRaw.indexOf( 'renamed-file' )) { type = EFileState.RENAMED; }
 			if ( ~typeRaw.indexOf( 'deleted-file' )) { type = EFileState.DELETED; }
 
 
 			// Save
 
-			const fileMetadata: IMetadata = { type, hash, filename };
+			const fileMetadata: IMetadata = { type, hash, filename, commented: false };
 			metadata.push( fileMetadata );
 		}
 
 		return metadata;
+	}
+
+
+	/**
+	 * Adds flag 'commented' in metadata to every file that was commented.
+	 */
+	obtainCommentedFiles()
+	{
+		const fileHolders = Array.prototype.slice.call( this.fileHolders );
+
+		fileHolders.forEach( ( fileHolder, index ) =>
+		{
+			const metadata = this.getMetadata( index );
+			metadata.commented = !! fileHolder.querySelector( '.notes_holder' );
+		})
 	}
 
 
@@ -334,7 +351,8 @@ class GitLabTree
 					let file: HTMLAnchorElement = document.createElement( 'a' );
 					file.setAttribute( 'href', metadata.hash );
 					file.classList.add( 'file' );
-					file.textContent = name;
+
+					// Color
 
 					let fileStateClass;
 					switch ( metadata.type )
@@ -344,6 +362,23 @@ class GitLabTree
 						case EFileState.DELETED: fileStateClass = CSS_PREFIX + '-file-deleted'; break;
 						default: fileStateClass = CSS_PREFIX + '-file-updated'; break;
 					}
+
+
+					// Was file commented?
+
+					if ( metadata.commented )
+					{
+						let commentElement = document.createElement('i');
+						commentElement.classList.add( 'fa', 'fa-comments-o', CSS_PREFIX + '-file-commented-icon' );
+						file.appendChild( commentElement ); 
+					}
+
+
+					// Content
+
+					const contentElement = document.createElement( 'span' );
+					contentElement.textContent = name;
+					file.appendChild( contentElement );
 
 					file.classList.add( fileStateClass );
 					files.push( file );

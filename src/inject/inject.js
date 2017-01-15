@@ -35,9 +35,9 @@ var GitLabTree = (function () {
         if (this.metadata.length === 0) {
             return;
         }
-        var filenames = this.metadata.map(function (m) { return m.filename; });
+        this.obtainCommentedFiles();
         // Analyze filenames
-        this.fileNames = filenames;
+        this.fileNames = this.metadata.map(function (m) { return m.filename; });
         this.pathPrefix = this.getPrefixPath(this.fileNames);
         this.strippedFileNames = this.removePathPrefix(this.fileNames, this.pathPrefix);
         // Create and display DOM
@@ -87,7 +87,7 @@ var GitLabTree = (function () {
                 filename = filename.split('→')[1].trim();
             }
             // Convert type
-            if (~typeRaw.indexOf('add-file')) {
+            if (~typeRaw.indexOf('new-file')) {
                 type = EFileState.ADDED;
             }
             if (~typeRaw.indexOf('renamed-file')) {
@@ -97,10 +97,18 @@ var GitLabTree = (function () {
                 type = EFileState.DELETED;
             }
             // Save
-            var fileMetadata = { type: type, hash: hash, filename: filename };
+            var fileMetadata = { type: type, hash: hash, filename: filename, commented: false };
             metadata.push(fileMetadata);
         }
         return metadata;
+    };
+    GitLabTree.prototype.obtainCommentedFiles = function () {
+        var _this = this;
+        var fileHolders = Array.prototype.slice.call(this.fileHolders);
+        fileHolders.forEach(function (fileHolder, index) {
+            var metadata = _this.getMetadata(index);
+            metadata.commented = !!fileHolder.querySelector('.notes_holder');
+        });
     };
     /**
      * Returns metadata by index.
@@ -230,7 +238,7 @@ var GitLabTree = (function () {
                     var file = document.createElement('a');
                     file.setAttribute('href', metadata.hash);
                     file.classList.add('file');
-                    file.textContent = name_1;
+                    // Color
                     var fileStateClass = void 0;
                     switch (metadata.type) {
                         case EFileState.ADDED:
@@ -246,6 +254,16 @@ var GitLabTree = (function () {
                             fileStateClass = CSS_PREFIX + '-file-updated';
                             break;
                     }
+                    // Was file commented?
+                    if (metadata.commented) {
+                        var commentElement = document.createElement('i');
+                        commentElement.classList.add('fa', 'fa-comments-o', CSS_PREFIX + '-file-commented-icon');
+                        file.appendChild(commentElement);
+                    }
+                    // Content
+                    var contentElement = document.createElement('span');
+                    contentElement.textContent = name_1;
+                    file.appendChild(contentElement);
                     file.classList.add(fileStateClass);
                     files.push(file);
                 }

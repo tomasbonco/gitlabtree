@@ -22,7 +22,6 @@
     margin-bottom: 10px;
 }
 
-
 .gitlab-tree-plugin-left .folder .holder
 {
     white-space: nowrap;
@@ -101,4 +100,9 @@
     color: #000;
     font-weight: bold;
     pointer-events: none;
+}
+
+.gitlab-tree-plugin-file-commented-icon
+{
+    margin-right: 7px;
 }
