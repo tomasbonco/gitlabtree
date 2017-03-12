@@ -32,7 +32,7 @@
 .gitlab-tree-plugin-left .folder .holder:before
 {
     font: normal normal normal 14px/1 FontAwesome;
-    content: "\f114";
+    content: "\f115";
     padding-right: 7px;
 }
 
@@ -64,6 +64,24 @@
 {
     content: "\f07c";
 }
+
+
+.gitlab-tree-plugin-left .folder.gitlab-tree-plugin-folder-collapsed > .holder:before
+{
+    content: "\f114";
+}
+
+.gitlab-tree-plugin-left .folder.gitlab-tree-plugin-folder-collapsed > .folder
+{
+    display: none;
+}
+
+.gitlab-tree-plugin-left .folder.gitlab-tree-plugin-folder-collapsed > a
+{
+    display: none;
+}
+
+
 
 .gitlab-tree-plugin-left .file
 {

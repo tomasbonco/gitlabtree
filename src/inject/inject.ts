@@ -25,6 +25,7 @@ class GitLabTree
 	lastActive: string = '';
 
 	hashChangeListener: () => void;
+	expandListener: ( e: MouseEvent )=> void;
 
 
 	constructor()
@@ -48,7 +49,6 @@ class GitLabTree
 		if ( ! files || this.fileHolders.length === 0 ) { return; }
 
 		files.classList.add( CSS_PREFIX );
-		this.copyAndHideFiles( files );
 
 
 		// Obtain metadata
@@ -58,12 +58,16 @@ class GitLabTree
 		this.obtainCommentedFiles();
 
 
+		// Hide files
+
+		this.copyAndHideFiles( files );
+
+
 		// Analyze filenames
 
 		this.fileNames = this.metadata.map( m => m.filename );
 		this.pathPrefix = this.getPrefixPath( this.fileNames );
 		this.strippedFileNames = this.removePathPrefix( this.fileNames, this.pathPrefix );
-
 
 
 		// Create and display DOM
@@ -80,6 +84,12 @@ class GitLabTree
 		this.showFile( currentFileHash );
 
 
+		// Add expanding feature
+
+		this.expandListener = ( e: MouseEvent ) => (e.target as HTMLElement).classList.contains( 'holder' ) ? this.toggleExpand( e ) : undefined;
+		document.addEventListener( 'click', this.expandListener );
+
+
 		// Add listener for changes
 
 		this.hashChangeListener = this.hashChanged.bind( this )
@@ -93,6 +103,7 @@ class GitLabTree
 	teardown(): void
 	{
 		window.removeEventListener( 'hashchange', this.hashChangeListener );
+		document.removeEventListener( 'click', this.expandListener );
 	}
 
 	
@@ -125,7 +136,7 @@ class GitLabTree
 			const typeRaw: string[] = Array.prototype.slice.call( rawFileMetadata.querySelector(  'span:first-child' ).classList );
 			const hash: string = rawFileMetadata.querySelector( 'a' ).getAttribute('href');
 			let filename: string = rawFileMetadata.querySelector( 'a' ).textContent.trim();
-			let type: EFileState = EFileState.UPDATED;;
+			let type: EFileState = EFileState.UPDATED;
 			
 
 			// When file renamed, show renamed file
@@ -329,6 +340,7 @@ class GitLabTree
 	{
 		let root: HTMLDivElement = document.createElement( 'div' );
 		root.classList.add( 'folder' );
+		root.classList.add( CSS_PREFIX + '-folder-expanded' );
 
 		let holder: HTMLDivElement = document.createElement( 'div' );
 		holder.classList.add( 'holder' );
@@ -395,6 +407,25 @@ class GitLabTree
 		files.forEach(( file: HTMLAnchorElement ) => root.appendChild( file ));
 
 		return root;
+	}
+
+
+	/**
+	 * Expands or collapses folder after click.
+	 * 
+	 * @param {MouseEvent} event - click event on .holder element
+	 */
+	toggleExpand( event: MouseEvent )
+	{
+		let folder = (event.target as HTMLElement).parentElement;
+		let isExpanded = folder.classList.contains( CSS_PREFIX + '-folder-expanded' );
+		let isMainFolder = document.querySelector( `.${CSS_PREFIX}-left > .folder` ) === folder;
+
+		if ( ! isMainFolder )
+		{
+			folder.classList.remove( CSS_PREFIX + '-folder-collapsed', CSS_PREFIX + '-folder-expanded' );
+			folder.classList.add( CSS_PREFIX + ( isExpanded ? '-folder-collapsed' : '-folder-expanded' ));
+		}
 	}
 
 

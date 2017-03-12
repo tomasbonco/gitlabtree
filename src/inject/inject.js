@@ -9,6 +9,7 @@ var EFileState;
 ;
 var GitLabTree = (function () {
     function GitLabTree() {
+        var _this = this;
         this.wrapperElement = document.createElement('div');
         this.leftElement = document.createElement('div');
         this.rightElement = document.createElement('div');
@@ -20,7 +21,7 @@ var GitLabTree = (function () {
             return;
         }
         // Detection if we have any files to generate tree from
-        var files = document.querySelector('.files'), as = HTMLElement;
+        var files = document.querySelector('.files');
         if (!files) {
             return;
         }
@@ -29,13 +30,14 @@ var GitLabTree = (function () {
             return;
         }
         files.classList.add(CSS_PREFIX);
-        this.copyAndHideFiles(files);
         // Obtain metadata
         this.metadata = this.obtainMetadata();
         if (this.metadata.length === 0) {
             return;
         }
         this.obtainCommentedFiles();
+        // Hide files
+        this.copyAndHideFiles(files);
         // Analyze filenames
         this.fileNames = this.metadata.map(function (m) { return m.filename; });
         this.pathPrefix = this.getPrefixPath(this.fileNames);
@@ -47,6 +49,9 @@ var GitLabTree = (function () {
         // Show file based on hash id
         var currentFileHash = location.hash;
         this.showFile(currentFileHash);
+        // Add expanding feature
+        this.expandListener = function (e) { return e.target.classList.contains('holder') ? _this.toggleExpand(e) : undefined; };
+        document.addEventListener('click', this.expandListener);
         // Add listener for changes
         this.hashChangeListener = this.hashChanged.bind(this);
         window.addEventListener('hashchange', this.hashChangeListener);
@@ -56,6 +61,7 @@ var GitLabTree = (function () {
      */
     GitLabTree.prototype.teardown = function () {
         window.removeEventListener('hashchange', this.hashChangeListener);
+        document.removeEventListener('click', this.expandListener);
     };
     /**
      * Creates required DOM elements.
@@ -75,13 +81,12 @@ var GitLabTree = (function () {
     GitLabTree.prototype.obtainMetadata = function () {
         var metadata = [];
         var rawFilesMetadata = Array.prototype.slice.call(document.querySelectorAll('.file-stats li'));
-        for (var _i = 0; _i < rawFilesMetadata.length; _i++) {
-            var rawFileMetadata = rawFilesMetadata[_i];
+        for (var _i = 0, rawFilesMetadata_1 = rawFilesMetadata; _i < rawFilesMetadata_1.length; _i++) {
+            var rawFileMetadata = rawFilesMetadata_1[_i];
             var typeRaw = Array.prototype.slice.call(rawFileMetadata.querySelector('span:first-child').classList);
             var hash = rawFileMetadata.querySelector('a').getAttribute('href');
             var filename = rawFileMetadata.querySelector('a').textContent.trim();
             var type = EFileState.UPDATED;
-            ;
             // When file renamed, show renamed file
             if (filename.indexOf('→') !== -1) {
                 filename = filename.split('→')[1].trim();
@@ -102,6 +107,9 @@ var GitLabTree = (function () {
         }
         return metadata;
     };
+    /**
+     * Adds flag 'commented' in metadata to every file that was commented.
+     */
     GitLabTree.prototype.obtainCommentedFiles = function () {
         var _this = this;
         var fileHolders = Array.prototype.slice.call(this.fileHolders);
@@ -127,7 +135,7 @@ var GitLabTree = (function () {
      */
     GitLabTree.prototype.copyAndHideFiles = function (files) {
         for (var i = 0; i < this.fileHolders.length; i++) {
-            var fileHolder = this.fileHolders[i], as = HTMLElement;
+            var fileHolder = this.fileHolders[i];
             files.removeChild(fileHolder);
             this.rightElement.appendChild(fileHolder);
             fileHolder.classList.add(CSS_PREFIX + '-hidden');
@@ -174,8 +182,8 @@ var GitLabTree = (function () {
             return fileNames.slice(0);
         }
         var output = [];
-        for (var _i = 0; _i < fileNames.length; _i++) {
-            var fileName = fileNames[_i];
+        for (var _i = 0, fileNames_1 = fileNames; _i < fileNames_1.length; _i++) {
+            var fileName = fileNames_1[_i];
             output.push(fileName.substring((prefix + '/').length));
         }
         return output;
@@ -223,6 +231,7 @@ var GitLabTree = (function () {
     GitLabTree.prototype.convertFolderStructureToDOM = function (folderName, structure) {
         var root = document.createElement('div');
         root.classList.add('folder');
+        root.classList.add(CSS_PREFIX + '-folder-expanded');
         var holder = document.createElement('div');
         holder.classList.add('holder');
         holder.setAttribute('title', folderName);
@@ -277,6 +286,20 @@ var GitLabTree = (function () {
         return root;
     };
     /**
+     * Expands or collapses folder after click.
+     *
+     * @param {MouseEvent} event - click event on .holder element
+     */
+    GitLabTree.prototype.toggleExpand = function (event) {
+        var folder = event.target.parentElement;
+        var isExpanded = folder.classList.contains(CSS_PREFIX + '-folder-expanded');
+        var isMainFolder = document.querySelector("." + CSS_PREFIX + "-left > .folder") === folder;
+        if (!isMainFolder) {
+            folder.classList.remove(CSS_PREFIX + '-folder-collapsed', CSS_PREFIX + '-folder-expanded');
+            folder.classList.add(CSS_PREFIX + (isExpanded ? '-folder-collapsed' : '-folder-expanded'));
+        }
+    };
+    /**
      * Callback called after hash has changed. It searches for "diff-[FILE ID]"" in hash,
      * and displays corresponding file (based on id).
      */
@@ -304,16 +327,12 @@ var GitLabTree = (function () {
     };
     GitLabTree.prototype.getFileHolderByHash = function (hash) {
         return this.rightElement.querySelector("[id='" + hash.substr(1) + "']");
-        as;
-        HTMLElement;
     };
     GitLabTree.prototype.getFileLinkByHash = function (hash) {
         return this.leftElement.querySelector("[href='" + hash + "']");
-        as;
-        HTMLElement;
     };
     return GitLabTree;
-})();
+}());
 var instance = new GitLabTree();
 /**
  * This is for fake AJAX re-renders of the page.
