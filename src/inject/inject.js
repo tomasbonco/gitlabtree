@@ -80,9 +80,46 @@ var GitLabTree = (function () {
      */
     GitLabTree.prototype.obtainMetadata = function () {
         var metadata = [];
-        var rawFilesMetadata = Array.prototype.slice.call(document.querySelectorAll('.file-stats li'));
+        var legacyRawFilesMetadata = Array.prototype.slice.call(document.querySelectorAll('.file-stats li'));
+        if (legacyRawFilesMetadata.length > 0) {
+            return this.obtainLegacyMetadata(legacyRawFilesMetadata);
+        }
+        var rawFilesMetadata = Array.prototype.slice.call(document.querySelectorAll('.diff-file-changes .dropdown-content li:not(.hidden)'));
         for (var _i = 0, rawFilesMetadata_1 = rawFilesMetadata; _i < rawFilesMetadata_1.length; _i++) {
             var rawFileMetadata = rawFilesMetadata_1[_i];
+            var classList = rawFileMetadata.querySelector('a i:first-child').classList;
+            var hash = rawFileMetadata.querySelector('a').getAttribute('href');
+            var filename = rawFileMetadata.querySelector('.diff-file-changes-path').textContent.trim();
+            var type = EFileState.UPDATED;
+            // When file renamed, show renamed file
+            if (filename.indexOf('→') !== -1) {
+                filename = filename.split('→')[1].trim();
+            }
+            // Convert type
+            if (classList.contains('fa-plus')) {
+                type = EFileState.ADDED;
+            }
+            if (classList.contains('fa-minus') && !classList.contains('cred')) {
+                type = EFileState.RENAMED;
+            }
+            if (classList.contains('fa-minus') && classList.contains('cred')) {
+                type = EFileState.DELETED;
+            }
+            // Save
+            var fileMetadata = { type: type, hash: hash, filename: filename, commented: false };
+            metadata.push(fileMetadata);
+        }
+        return metadata;
+    };
+    /**
+     * It does the same thing as obtainMetadata, but for Gitlab < 9.5 (Collects basic information about files - their names, their hashes, and happend to them).
+     * See https://github.com/tomasbonco/gitlabtree/issues/2
+     * @param {HTMLElement[]} rawFilesMetadata - HTML elements of file changed in commit(s)
+     */
+    GitLabTree.prototype.obtainLegacyMetadata = function (rawFilesMetadata) {
+        var metadata = [];
+        for (var _i = 0, rawFilesMetadata_2 = rawFilesMetadata; _i < rawFilesMetadata_2.length; _i++) {
+            var rawFileMetadata = rawFilesMetadata_2[_i];
             var typeRaw = Array.prototype.slice.call(rawFileMetadata.querySelector('span:first-child').classList);
             var hash = rawFileMetadata.querySelector('a').getAttribute('href');
             var filename = rawFileMetadata.querySelector('a').textContent.trim();

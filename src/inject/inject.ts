@@ -129,7 +129,57 @@ class GitLabTree
 	obtainMetadata(): IMetadata[]
 	{
 		let metadata: IMetadata[] = [];
-		let rawFilesMetadata: HTMLElement[] = Array.prototype.slice.call( document.querySelectorAll( '.file-stats li' ));
+		let legacyRawFilesMetadata: HTMLElement[] = Array.prototype.slice.call( document.querySelectorAll( '.file-stats li' ));
+
+		if ( legacyRawFilesMetadata.length > 0 )
+		{
+			return this.obtainLegacyMetadata( legacyRawFilesMetadata );
+		}
+
+		const rawFilesMetadata: HTMLElement[] = Array.prototype.slice.call( document.querySelectorAll( '.diff-file-changes .dropdown-content li:not(.hidden)' ));
+
+		for ( let rawFileMetadata of rawFilesMetadata )
+		{
+			const classList = rawFileMetadata.querySelector( 'a i:first-child' ).classList;
+			const hash: string = rawFileMetadata.querySelector( 'a' ).getAttribute('href');
+			let filename: string = rawFileMetadata.querySelector( '.diff-file-changes-path' ).textContent.trim();
+			let type: EFileState = EFileState.UPDATED;
+			
+
+			// When file renamed, show renamed file
+
+			if ( filename.indexOf('→') !== -1 )
+			{
+				filename = filename.split( '→' )[1].trim();
+			}
+
+
+			// Convert type
+
+			if ( classList.contains( 'fa-plus' )) { type = EFileState.ADDED;	}
+			if ( classList.contains( 'fa-minus' ) && ! classList.contains( 'cred' )) { type = EFileState.RENAMED; }
+			if ( classList.contains( 'fa-minus' ) && classList.contains( 'cred' )) { type = EFileState.DELETED; }
+
+
+			// Save
+
+			const fileMetadata: IMetadata = { type, hash, filename, commented: false };
+			metadata.push( fileMetadata );
+		}
+
+		return metadata;
+	}
+
+
+	
+	/**
+	 * It does the same thing as obtainMetadata, but for Gitlab < 9.5 (Collects basic information about files - their names, their hashes, and happend to them).
+	 * See https://github.com/tomasbonco/gitlabtree/issues/2
+	 * @param {HTMLElement[]} rawFilesMetadata - HTML elements of file changed in commit(s)
+	 */
+	obtainLegacyMetadata( rawFilesMetadata )
+	{
+		let metadata: IMetadata[] = [];
 
 		for ( let rawFileMetadata of rawFilesMetadata )
 		{
