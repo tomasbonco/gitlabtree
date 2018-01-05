@@ -128,15 +128,74 @@ class GitLabTree
 	 */
 	obtainMetadata(): IMetadata[]
 	{
-		let metadata: IMetadata[] = [];
-		let legacyRawFilesMetadata: HTMLElement[] = Array.prototype.slice.call( document.querySelectorAll( '.file-stats li' ));
+		const metadataFiles_v10_3_and_latest: () => HTMLElement[] = () => Array.prototype.slice.call( document.querySelectorAll( '.diff-file-changes .dropdown-content li:not(.hidden)' ));
+		const metadataFiles_v9_5: () => HTMLElement[] = () => Array.prototype.slice.call( document.querySelectorAll( '.file-stats li' ));
 
-		if ( legacyRawFilesMetadata.length > 0 )
+		const files_latest = metadataFiles_v10_3_and_latest();
+
+		if ( files_latest.length > 0 )
 		{
-			return this.obtainLegacyMetadata( legacyRawFilesMetadata );
+			if ( files_latest[0].querySelector( 'a i:first-child' ) )
+			{
+				return this.obtainMetadata_v10_3( files_latest );
+			}
+
+			else
+			{
+				return this.obtainMetadata_latest( files_latest );
+			}
 		}
 
-		const rawFilesMetadata: HTMLElement[] = Array.prototype.slice.call( document.querySelectorAll( '.diff-file-changes .dropdown-content li:not(.hidden)' ));
+		else
+		{
+			return this.obtainMetadata_v9_5( metadataFiles_v9_5() );
+		}		
+	}
+
+	/**
+	 * It does obtain metadata for latest known version of Gitlab (Collects basic information about files - their names, their hashes and what happend to them).
+	 *
+	 * @param {HTMLElement[]} rawFilesMetadata - HTML elements of file changed in commit(s)
+	 */
+	obtainMetadata_latest( rawFilesMetadata: HTMLElement[] )
+	{
+		const metadata: IMetadata[] = [];
+
+		for ( let rawFileMetadata of rawFilesMetadata )
+		{
+			const svgElement: HTMLElement = rawFileMetadata.querySelector( 'svg.diff-file-changed-icon' ) as HTMLElement;
+			const typeRaw: string = svgElement.querySelector( 'use' ).getAttribute('xlink:href').split('#')[1];
+			const hash: string = rawFileMetadata.querySelector( 'a' ).getAttribute('href');
+			const filename: string = rawFileMetadata.querySelector( '.diff-changed-file-path' ).textContent.trim();
+			const isCred: boolean = svgElement.classList.contains( 'cred' );
+			
+			let type: EFileState = EFileState.UPDATED;
+
+
+			// Convert type
+
+			if ( typeRaw === 'file-addition' ) { type = EFileState.ADDED;	}
+			if ( typeRaw === 'file-deletion' && ! isCred ) { type = EFileState.RENAMED; }
+			if ( typeRaw === 'file-deletion' && isCred ) { type = EFileState.DELETED; }
+
+
+			// Save
+
+			const fileMetadata: IMetadata = { type, hash, filename, commented: false };
+			metadata.push( fileMetadata );
+		}
+
+		return metadata;
+	}
+
+	/**
+	 * It does obtain metadata for Gitlab < 10_3 (Collects basic information about files - their names, their hashes and what happend to them).
+	 * See https://github.com/tomasbonco/gitlabtree/issues/3
+	 * @param {HTMLElement[]} rawFilesMetadata - HTML elements of file changed in commit(s)
+	 */
+	obtainMetadata_v10_3( rawFilesMetadata: HTMLElement[] )
+	{
+		let metadata: IMetadata[] = [];
 
 		for ( let rawFileMetadata of rawFilesMetadata )
 		{
@@ -169,15 +228,13 @@ class GitLabTree
 
 		return metadata;
 	}
-
-
 	
 	/**
-	 * It does the same thing as obtainMetadata, but for Gitlab < 9.5 (Collects basic information about files - their names, their hashes, and happend to them).
+	 * It does obtain metadata for Gitlab < 9.5 (Collects basic information about files - their names, their hashes and what happend to them).
 	 * See https://github.com/tomasbonco/gitlabtree/issues/2
 	 * @param {HTMLElement[]} rawFilesMetadata - HTML elements of file changed in commit(s)
 	 */
-	obtainLegacyMetadata( rawFilesMetadata )
+	obtainMetadata_v9_5( rawFilesMetadata )
 	{
 		let metadata: IMetadata[] = [];
 
