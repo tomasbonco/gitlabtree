@@ -166,7 +166,7 @@ class GitLabTree
 			const svgElement: HTMLElement = rawFileMetadata.querySelector( 'svg.diff-file-changed-icon' ) as HTMLElement;
 			const typeRaw: string = svgElement.querySelector( 'use' ).getAttribute('xlink:href').split('#')[1];
 			const hash: string = rawFileMetadata.querySelector( 'a' ).getAttribute('href');
-			const filename: string = rawFileMetadata.querySelector( '.diff-changed-file-path' ).textContent.trim();
+			const filename: string = rawFileMetadata.querySelector( '.diff-changed-file' ).getAttribute('title');
 			const isCred: boolean = svgElement.classList.contains( 'cred' );
 			
 			let type: EFileState = EFileState.UPDATED;
