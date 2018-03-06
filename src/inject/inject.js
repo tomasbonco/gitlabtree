@@ -7,7 +7,7 @@ var EFileState;
     EFileState[EFileState["DELETED"] = 3] = "DELETED";
 })(EFileState || (EFileState = {}));
 ;
-var GitLabTree = (function () {
+var GitLabTree = /** @class */ (function () {
     function GitLabTree() {
         var _this = this;
         this.wrapperElement = document.createElement('div');
