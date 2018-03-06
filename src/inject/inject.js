@@ -106,7 +106,7 @@ var GitLabTree = (function () {
             var svgElement = rawFileMetadata.querySelector('svg.diff-file-changed-icon');
             var typeRaw = svgElement.querySelector('use').getAttribute('xlink:href').split('#')[1];
             var hash = rawFileMetadata.querySelector('a').getAttribute('href');
-            var filename = rawFileMetadata.querySelector('.diff-changed-file-path').textContent.trim();
+            var filename = rawFileMetadata.querySelector('.diff-changed-file').getAttribute('title');
             var isCred = svgElement.classList.contains('cred');
             var type = EFileState.UPDATED;
             // Convert type
