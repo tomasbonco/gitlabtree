@@ -19,9 +19,10 @@ class GitLabTree
 	metadata: IMetadata[];
 
 	wrapperElement: HTMLDivElement = document.createElement( 'div' );
+	wrapperElementBar: HTMLDivElement = document.createElement( 'div' );
 	leftElement: HTMLDivElement = document.createElement( 'div' );
 	rightElement: HTMLDivElement = document.createElement( 'div' );
-	
+
 	lastActive: string = '';
 
 	hashChangeListener: () => void;
@@ -42,13 +43,14 @@ class GitLabTree
 		// Detection if we have any files to generate tree from
 
 		const files: HTMLElement = document.querySelector( '.files' ) as HTMLElement;
-	
+		const navscroller: HTMLElement = document.querySelector( '.nav-sidebar-inner-scroll' ) as HTMLElement;
+
 		if ( ! files ) { return; }
 
 		this.fileHolders = files.querySelectorAll( '.file-holder' );
 		if ( ! files || this.fileHolders.length === 0 ) { return; }
 
-		files.classList.add( CSS_PREFIX );
+		navscroller.classList.add( CSS_PREFIX );
 
 
 		// Obtain metadata
@@ -60,7 +62,7 @@ class GitLabTree
 
 		// Hide files
 
-		this.copyAndHideFiles( files );
+		this.copyAndHideFiles( navscroller );
 
 
 		// Analyze filenames
@@ -75,6 +77,7 @@ class GitLabTree
 		const fileNamesDOM: HTMLDivElement = this.convertFolderStructureToDOM( this.pathPrefix, this.createFolderStructure( this.strippedFileNames ) )
 
 		this.leftElement.appendChild( fileNamesDOM )
+		navscroller.appendChild( this.wrapperElementBar );
 		files.appendChild( this.wrapperElement );
 
 
@@ -112,10 +115,11 @@ class GitLabTree
 	 */
 	init(): void
 	{
-		this.wrapperElement.appendChild( this.leftElement );
+		this.wrapperElementBar.appendChild( this.leftElement );
 		this.wrapperElement.appendChild( this.rightElement );
 
 		this.wrapperElement.classList.add( CSS_PREFIX + '-wrapper' );
+		this.wrapperElementBar.classList.add( CSS_PREFIX + '-wrapper' );
 		this.leftElement.classList.add( CSS_PREFIX + '-left' );
 		this.rightElement.classList.add( CSS_PREFIX + '-right' );
 	}

@@ -10,6 +10,7 @@ var EFileState;
 var GitLabTree = /** @class */ (function () {
     function GitLabTree() {
         var _this = this;
+        this.wrapperElementBar = document.createElement('div');
         this.wrapperElement = document.createElement('div');
         this.leftElement = document.createElement('div');
         this.rightElement = document.createElement('div');
@@ -22,6 +23,7 @@ var GitLabTree = /** @class */ (function () {
         }
         // Detection if we have any files to generate tree from
         var files = document.querySelector('.files');
+        var navscroller = document.querySelector('.nav-sidebar-inner-scroll');
         if (!files) {
             return;
         }
@@ -29,6 +31,7 @@ var GitLabTree = /** @class */ (function () {
         if (!files || this.fileHolders.length === 0) {
             return;
         }
+        navscroller.classList.add(CSS_PREFIX);
         files.classList.add(CSS_PREFIX);
         // Obtain metadata
         this.metadata = this.obtainMetadata();
@@ -45,7 +48,8 @@ var GitLabTree = /** @class */ (function () {
         // Create and display DOM
         var fileNamesDOM = this.convertFolderStructureToDOM(this.pathPrefix, this.createFolderStructure(this.strippedFileNames));
         this.leftElement.appendChild(fileNamesDOM);
-        files.appendChild(this.wrapperElement);
+        navscroller.appendChild(this.leftElement);
+        files.appendChild(this.rightElement);
         // Show file based on hash id
         var currentFileHash = location.hash;
         this.showFile(currentFileHash);
@@ -67,9 +71,10 @@ var GitLabTree = /** @class */ (function () {
      * Creates required DOM elements.
      */
     GitLabTree.prototype.init = function () {
-        this.wrapperElement.appendChild(this.leftElement);
+        this.wrapperElementBar.appendChild(this.leftElement);
         this.wrapperElement.appendChild(this.rightElement);
         this.wrapperElement.classList.add(CSS_PREFIX + '-wrapper');
+        this.wrapperElementBar.classList.add(CSS_PREFIX + '-wrapper');
         this.leftElement.classList.add(CSS_PREFIX + '-left');
         this.rightElement.classList.add(CSS_PREFIX + '-right');
     };
