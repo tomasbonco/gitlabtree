@@ -77,6 +77,8 @@ class GitLabTree
 		this.leftElement.appendChild( fileNamesDOM )
 		files.appendChild( this.wrapperElement );
 
+		// Adjust DOM so that the Changes tab uses 100% width
+		this.makeChangesTabWider();
 
 		// Show file based on hash id
 
@@ -514,6 +516,36 @@ class GitLabTree
 		files.forEach(( file: HTMLAnchorElement ) => root.appendChild( file ));
 
 		return root;
+	}
+
+
+	/**
+	 * It makes the 'Changes' tab use the full width of the content area.  This is done
+	 * by removing the tab contents divs from the DOM, then looping through the divs and 
+	 * applying the GitLab CSS classes that control content width to all except the 
+	 * 'Changes' tab.  Finally, it places the results back into the DOM directly under
+	 * the 'content-wrapper' div.
+	 */
+	makeChangesTabWider(): void
+	{
+		const tabsContent = document.querySelector( '.tab-content' ) as HTMLElement;
+		tabsContent.parentElement.removeChild( tabsContent );
+
+		for ( let i = 0; i < tabsContent.childElementCount; i++ )
+		{
+			let content = tabsContent.children[i];
+
+			// Add the GitLab container margin and padding class
+			content.classList.add( 'container-fluid' );
+			
+			if ( ! content.classList.contains( 'diffs' )) {
+				// Add the GitLab limited-width container classes
+				content.classList.add( 'container-limited', 'limit-container-width' );
+			}
+		}
+
+		const contentWrapper = document.querySelector( '.content-wrapper' ) as HTMLElement;
+		contentWrapper.appendChild( tabsContent );
 	}
 
 

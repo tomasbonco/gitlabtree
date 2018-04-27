@@ -46,6 +46,8 @@ var GitLabTree = /** @class */ (function () {
         var fileNamesDOM = this.convertFolderStructureToDOM(this.pathPrefix, this.createFolderStructure(this.strippedFileNames));
         this.leftElement.appendChild(fileNamesDOM);
         files.appendChild(this.wrapperElement);
+        // Adjust DOM so that the Changes tab uses 100% width
+        this.makeChangesTabWider();
         // Show file based on hash id
         var currentFileHash = location.hash;
         this.showFile(currentFileHash);
@@ -293,7 +295,8 @@ var GitLabTree = /** @class */ (function () {
             for (var ii = 0; ii < fileNameParts.length; ii++) {
                 var part = fileNameParts[ii];
                 if (!currentFolder[part]) {
-                    if (ii === fileNameParts.length - 1) {
+                    if (ii === fileNameParts.length - 1) // is last one
+                     {
                         currentFolder[part] = i; // file
                     }
                     else {
@@ -368,6 +371,28 @@ var GitLabTree = /** @class */ (function () {
         folders.forEach(function (folder) { return root.appendChild(folder); });
         files.forEach(function (file) { return root.appendChild(file); });
         return root;
+    };
+    /**
+     * It makes the 'Changes' tab use the full width of the content area.  This is done
+     * by removing the tab contents divs from the DOM, then looping through the divs and
+     * applying the GitLab CSS classes that control content width to all except the
+     * 'Changes' tab.  Finally, it places the results back into the DOM directly under
+     * the 'content-wrapper' div.
+     */
+    GitLabTree.prototype.makeChangesTabWider = function () {
+        var tabsContent = document.querySelector('.tab-content');
+        tabsContent.parentElement.removeChild(tabsContent);
+        for (var i = 0; i < tabsContent.childElementCount; i++) {
+            var content = tabsContent.children[i];
+            // Add the GitLab container margin and padding class
+            content.classList.add('container-fluid');
+            if (!content.classList.contains('diffs')) {
+                // Add the GitLab limited-width container classes
+                content.classList.add('container-limited', 'limit-container-width');
+            }
+        }
+        var contentWrapper = document.querySelector('.content-wrapper');
+        contentWrapper.appendChild(tabsContent);
     };
     /**
      * Expands or collapses folder after click.
