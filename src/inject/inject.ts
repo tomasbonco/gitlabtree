@@ -529,6 +529,12 @@ class GitLabTree
 	makeChangesTabWider(): void
 	{
 		const tabsContent = document.querySelector( '.tab-content' ) as HTMLElement;
+
+		if ( ! tabsContent )
+		{
+			return;
+		}
+		
 		tabsContent.parentElement.removeChild( tabsContent );
 
 		for ( let i = 0; i < tabsContent.childElementCount; i++ )

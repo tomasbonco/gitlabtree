@@ -381,6 +381,9 @@ var GitLabTree = /** @class */ (function () {
      */
     GitLabTree.prototype.makeChangesTabWider = function () {
         var tabsContent = document.querySelector('.tab-content');
+        if (!tabsContent) {
+            return;
+        }
         tabsContent.parentElement.removeChild(tabsContent);
         for (var i = 0; i < tabsContent.childElementCount; i++) {
             var content = tabsContent.children[i];
