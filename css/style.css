@@ -124,3 +124,15 @@
 {
     margin-right: 7px;
 }
+
+.gitlab-tree-tabs-wrapper
+{
+    top: 40px;
+    z-index: 200;
+    position: sticky;
+}
+
+.diff-files-changed {
+    position: inherit !important;
+}
+
