@@ -1,3 +1,8 @@
+.gitlab-tree-plugin
+{
+    overflow: auto;
+}
+
 .gitlab-tree-plugin-wrapper
 {
     display: flex;
@@ -13,6 +18,7 @@
     flex: 0 0 250px;
     border: 1px solid #e5e5e5;
     margin-right: 15px;
+    margin-bottom: 50px;
     overflow: auto;
 }
 

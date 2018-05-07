@@ -5,6 +5,8 @@ This is browser extension for Chrome / Firefox / Opera (and maybe IE as well :) 
 
 ![Image of plugin](https://github.com/tomasbonco/gitlabtree/blob/master/screenshot.png)
 
+![Image with sidebar](https://github.com/seqizz/gitlabtree/blob/master/screenshot2.png)
+
 ## Installation
 
 [Chrome](https://chrome.google.com/webstore/detail/gitlab-tree-view/pijacafkghdlolapcjpmiodgbnpinicn)
@@ -19,4 +21,4 @@ Star, if you like :) Open an issue, if you find a bug or you miss something. Sen
 
 ## License
 
-MIT 
+MIT
