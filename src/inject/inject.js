@@ -1,5 +1,6 @@
 var CSS_PREFIX = 'gitlab-tree-plugin';
 var EFileState;
+var usesidebar = new Boolean(false);
 (function (EFileState) {
     EFileState[EFileState["ADDED"] = 0] = "ADDED";
     EFileState[EFileState["UPDATED"] = 1] = "UPDATED";
@@ -7,9 +8,27 @@ var EFileState;
     EFileState[EFileState["DELETED"] = 3] = "DELETED";
 })(EFileState || (EFileState = {}));
 ;
+
+function determineSidebar(sidebarcallback) {
+    function onError(error) {
+        console.log(`Error: ${error}`);
+    };
+    function onGot(item) {
+        if (item) {
+            usesidebar = item.gitlabtree_sidebarstorevalue;
+            sidebarcallback();
+        }
+    };
+    var getting = browser.storage.local.get("gitlabtree_sidebarstorevalue");
+    getting.then(onGot, onError);
+}
+
 var GitLabTree = /** @class */ (function () {
     function GitLabTree() {
         var _this = this;
+        if (usesidebar) {
+            this.wrapperElementBar = document.createElement('div');
+        }
         this.wrapperElement = document.createElement('div');
         this.leftElement = document.createElement('div');
         this.rightElement = document.createElement('div');
@@ -22,6 +41,9 @@ var GitLabTree = /** @class */ (function () {
         }
         // Detection if we have any files to generate tree from
         var files = document.querySelector('.files');
+        if (usesidebar) {
+            var navscroller = document.querySelector('.nav-sidebar-inner-scroll');
+        }
         if (!files) {
             return;
         }
@@ -29,6 +51,9 @@ var GitLabTree = /** @class */ (function () {
         if (!files || this.fileHolders.length === 0) {
             return;
         }
+        if (usesidebar) {
+            navscroller.classList.add(CSS_PREFIX);
+        };
         files.classList.add(CSS_PREFIX);
         // Obtain metadata
         this.metadata = this.obtainMetadata();
@@ -45,7 +70,12 @@ var GitLabTree = /** @class */ (function () {
         // Create and display DOM
         var fileNamesDOM = this.convertFolderStructureToDOM(this.pathPrefix, this.createFolderStructure(this.strippedFileNames));
         this.leftElement.appendChild(fileNamesDOM);
-        files.appendChild(this.wrapperElement);
+        if (usesidebar) {
+            navscroller.appendChild(this.leftElement);
+            files.appendChild(this.rightElement);
+        } else {
+            files.appendChild(this.wrapperElement);
+        };
         // Adjust DOM so that the Changes tab uses 100% width
         this.makeChangesTabWider();
         // Show file based on hash id
@@ -69,9 +99,16 @@ var GitLabTree = /** @class */ (function () {
      * Creates required DOM elements.
      */
     GitLabTree.prototype.init = function () {
-        this.wrapperElement.appendChild(this.leftElement);
+        if (usesidebar) {
+            this.wrapperElementBar.appendChild(this.leftElement);
+        } else {
+            this.wrapperElement.appendChild(this.leftElement);
+        };
         this.wrapperElement.appendChild(this.rightElement);
         this.wrapperElement.classList.add(CSS_PREFIX + '-wrapper');
+        if (usesidebar) {
+            this.wrapperElementBar.classList.add(CSS_PREFIX + '-wrapper');
+        };
         this.leftElement.classList.add(CSS_PREFIX + '-left');
         this.rightElement.classList.add(CSS_PREFIX + '-right');
     };
@@ -445,16 +482,19 @@ var GitLabTree = /** @class */ (function () {
     };
     return GitLabTree;
 }());
-var instance = new GitLabTree();
-/**
- * This is for fake AJAX re-renders of the page.
- */
-function checkSiteChange() {
-    var files = document.querySelector('.files');
-    if (files && !files.classList.contains(CSS_PREFIX)) {
-        instance.teardown();
-        instance = new GitLabTree();
+determineSidebar(function() {
+    console.log('Determine done! Running rest...');
+    var instance = new GitLabTree();
+    /**
+     * This is for fake AJAX re-renders of the page.
+     */
+    function checkSiteChange() {
+        var files = document.querySelector('.files');
+        if (files && !files.classList.contains(CSS_PREFIX)) {
+            instance.teardown();
+            instance = new GitLabTree();
+        }
     }
-}
-setInterval(function () { return checkSiteChange(); }, 3000);
-//# sourceMappingURL=inject.js.map
+    setInterval(function () { return checkSiteChange(); }, 3000);
+    //# sourceMappingURL=inject.js.map
+});
