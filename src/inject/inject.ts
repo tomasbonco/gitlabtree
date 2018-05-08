@@ -546,7 +546,8 @@ class GitLabTree
 	 * div's ancestors.  Finally, it places the wrapped DIV into the DOM directly under
 	 * the 'content-wrapper' div.
 	 */
-	moveTabs( tabs: HTMLElement, contentWrapper: HTMLElement ): void {
+	moveTabs( tabs: HTMLElement, contentWrapper: HTMLElement ): void
+	{
 		tabs.parentElement.removeChild( tabs );
 
 		const tabsWrapper = document.createElement( 'div' );
@@ -569,7 +570,8 @@ class GitLabTree
 	 * 'Changes' tab.  Finally, it places the results back into the DOM directly under
 	 * the 'content-wrapper' div.
 	 */
-	moveTabsContent( tabsContent: HTMLElement, contentWrapper: HTMLElement ): void {
+	moveTabsContent( tabsContent: HTMLElement, contentWrapper: HTMLElement ): void
+	{
 		tabsContent.parentElement.removeChild( tabsContent );
 
 		for ( let i = 0; i < tabsContent.childElementCount; i++ )
@@ -579,7 +581,8 @@ class GitLabTree
 			// Add the GitLab container margin and padding class
 			content.classList.add( 'container-fluid' );
 			
-			if ( ! content.classList.contains( 'diffs' )) {
+			if ( ! content.classList.contains( 'diffs' ))
+			{
 				// Add the GitLab limited-width container classes
 				content.classList.add( 'container-limited', 'limit-container-width' );
 			}

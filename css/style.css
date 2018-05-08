@@ -132,7 +132,8 @@
     position: sticky;
 }
 
-.diff-files-changed {
+.diff-files-changed
+{
     position: inherit !important;
 }
 
