@@ -72,9 +72,9 @@ class GitLabTree
 
 		// Create and display DOM
 
-		const fileNamesDOM: HTMLDivElement = this.convertFolderStructureToDOM( this.pathPrefix, this.createFolderStructure( this.strippedFileNames ) )
+		const fileNamesDOM: HTMLDivElement = this.convertFolderStructureToDOM( this.pathPrefix, this.createFolderStructure( this.strippedFileNames ) );
 
-		this.leftElement.appendChild( fileNamesDOM )
+		this.leftElement.appendChild( fileNamesDOM );
 		files.appendChild( this.wrapperElement );
 
 		// Adjust DOM so that the Changes tab uses 100% width
@@ -520,21 +520,58 @@ class GitLabTree
 
 
 	/**
+	 * It makes the 'Changes' tab use the full width of the content area on the merge request
+	 * page (only).
+	 */
+	makeChangesTabWider(): void
+	{
+		const contentWrapper = document.querySelector( '.content-wrapper' ) as HTMLElement;
+		const tabs = document.querySelector( '.merge-request-tabs-holder' ) as HTMLElement;
+		const tabsContent = document.querySelector( '.tab-content' ) as HTMLElement;
+		
+		if ( ! contentWrapper || ! tabs || ! tabsContent )
+		{
+			return;
+		}
+		
+		this.moveTabs( tabs, contentWrapper );
+		this.moveTabsContent( tabsContent, contentWrapper );
+	}
+
+
+	/**
+	 * It preserves the tab headers sticky behavior at the top of all merge request pages.
+	 * This is done by removing the tab headers div from the DOM, then wrapping it in a new
+	 * div which contains all the styling which was previously provided by the tab headers
+	 * div's ancestors.  Finally, it places the wrapped DIV into the DOM directly under
+	 * the 'content-wrapper' div.
+	 */
+	moveTabs( tabs: HTMLElement, contentWrapper: HTMLElement ): void
+	{
+		tabs.parentElement.removeChild( tabs );
+
+		const tabsWrapper = document.createElement( 'div' );
+		tabsWrapper.classList.add(
+			'container-fluid',
+			'limit-container-width',
+			'container-fixed',
+			'gitlab-tree-tabs-wrapper'
+		);
+		tabsWrapper.appendChild( tabs );
+
+		contentWrapper.appendChild( tabsWrapper );
+	}
+
+
+	/**
 	 * It makes the 'Changes' tab use the full width of the content area.  This is done
 	 * by removing the tab contents divs from the DOM, then looping through the divs and 
 	 * applying the GitLab CSS classes that control content width to all except the 
 	 * 'Changes' tab.  Finally, it places the results back into the DOM directly under
 	 * the 'content-wrapper' div.
 	 */
-	makeChangesTabWider(): void
+	moveTabsContent( tabsContent: HTMLElement, contentWrapper: HTMLElement ): void
 	{
-		const tabsContent = document.querySelector( '.tab-content' ) as HTMLElement;
-
-		if ( ! tabsContent )
-		{
-			return;
-		}
-		
 		tabsContent.parentElement.removeChild( tabsContent );
 
 		for ( let i = 0; i < tabsContent.childElementCount; i++ )
@@ -544,13 +581,13 @@ class GitLabTree
 			// Add the GitLab container margin and padding class
 			content.classList.add( 'container-fluid' );
 			
-			if ( ! content.classList.contains( 'diffs' )) {
+			if ( ! content.classList.contains( 'diffs' ))
+			{
 				// Add the GitLab limited-width container classes
 				content.classList.add( 'container-limited', 'limit-container-width' );
 			}
 		}
 
-		const contentWrapper = document.querySelector( '.content-wrapper' ) as HTMLElement;
 		contentWrapper.appendChild( tabsContent );
 	}
 

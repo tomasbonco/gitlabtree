@@ -373,17 +373,41 @@ var GitLabTree = /** @class */ (function () {
         return root;
     };
     /**
+     * It makes the 'Changes' tab use the full width of the content area on the merge request
+     * page (only).
+     */
+    GitLabTree.prototype.makeChangesTabWider = function () {
+        var contentWrapper = document.querySelector('.content-wrapper');
+        var tabs = document.querySelector('.merge-request-tabs-holder');
+        var tabsContent = document.querySelector('.tab-content');
+        if (!contentWrapper || !tabs || !tabsContent) {
+            return;
+        }
+        this.moveTabs(tabs, contentWrapper);
+        this.moveTabsContent(tabsContent, contentWrapper);
+    };
+    /**
+     * It preserves the tab headers sticky behavior at the top of all merge request pages.
+     * This is done by removing the tab headers div from the DOM, then wrapping it in a new
+     * div which contains all the styling which was previously provided by the tab headers
+     * div's ancestors.  Finally, it places the wrapped DIV into the DOM directly under
+     * the 'content-wrapper' div.
+     */
+    GitLabTree.prototype.moveTabs = function (tabs, contentWrapper) {
+        tabs.parentElement.removeChild(tabs);
+        var tabsWrapper = document.createElement('div');
+        tabsWrapper.classList.add('container-fluid', 'limit-container-width', 'container-fixed', 'gitlab-tree-tabs-wrapper');
+        tabsWrapper.appendChild(tabs);
+        contentWrapper.appendChild(tabsWrapper);
+    };
+    /**
      * It makes the 'Changes' tab use the full width of the content area.  This is done
      * by removing the tab contents divs from the DOM, then looping through the divs and
      * applying the GitLab CSS classes that control content width to all except the
      * 'Changes' tab.  Finally, it places the results back into the DOM directly under
      * the 'content-wrapper' div.
      */
-    GitLabTree.prototype.makeChangesTabWider = function () {
-        var tabsContent = document.querySelector('.tab-content');
-        if (!tabsContent) {
-            return;
-        }
+    GitLabTree.prototype.moveTabsContent = function (tabsContent, contentWrapper) {
         tabsContent.parentElement.removeChild(tabsContent);
         for (var i = 0; i < tabsContent.childElementCount; i++) {
             var content = tabsContent.children[i];
@@ -394,7 +418,6 @@ var GitLabTree = /** @class */ (function () {
                 content.classList.add('container-limited', 'limit-container-width');
             }
         }
-        var contentWrapper = document.querySelector('.content-wrapper');
         contentWrapper.appendChild(tabsContent);
     };
     /**
