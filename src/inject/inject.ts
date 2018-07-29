@@ -130,7 +130,7 @@ class GitLabTree
 	 */
 	obtainMetadata(): IMetadata[]
 	{
-		const metadataFiles_v10_3_and_latest: () => HTMLElement[] = () => Array.prototype.slice.call( document.querySelectorAll( '.diff-file-changes .dropdown-content li:not(.hidden)' ));
+		const metadataFiles_v10_3_and_latest: () => HTMLElement[] = () => Array.prototype.slice.call( document.querySelectorAll( '.diff-file-changes .dropdown-content li:not(.hidden):not(.dropdown-menu-empty-item)' ));
 		const metadataFiles_v9_5: () => HTMLElement[] = () => Array.prototype.slice.call( document.querySelectorAll( '.file-stats li' ));
 
 		const files_latest = metadataFiles_v10_3_and_latest();
