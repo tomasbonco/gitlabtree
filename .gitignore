@@ -1,2 +1,3 @@
-/src/**/*.js
-/src/**/*.map
+node_modules
+.cache
+dist
