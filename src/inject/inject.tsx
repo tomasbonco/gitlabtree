@@ -1,8 +1,10 @@
 import { Metadata } from './metadata';
-import { Files, File, Folder } from './structure';
-import { autoinject, Container } from './container';
-
-const CSS_PREFIX = 'gitlab-tree-plugin';
+import { autoinject, Container, Instance } from './container';
+import { CSS_PREFIX } from './constants'
+import { Navigation } from './navigation';
+import { Structure } from './structure'
+import { File } from './File'
+import { h, render} from 'preact'
 
 @autoinject
 export class GitLabTree
@@ -19,7 +21,7 @@ export class GitLabTree
 	lastActive: string = '';
 
 	hashChangeListener: () => void;
-	expandListener: ( e: MouseEvent )=> void;
+	expandListener: ( e: MouseEvent ) => void;
 
 
 	constructor( private container: Container )
@@ -46,7 +48,7 @@ export class GitLabTree
 
 		// Obtain metadata
 
-		const metadata = new Metadata( this.fileHolders );
+		const metadata: Metadata = new Metadata( this.fileHolders );
 		this.container.set( Metadata, metadata );
 
 		if ( metadata.getAll().length === 0 )
@@ -57,7 +59,8 @@ export class GitLabTree
 
 		// Analyze filenames
 
-		const _files = container.get( Files );
+		const navigation: Navigation = container.get( Navigation )
+		const navigationView: any = render( navigation.render(), this.leftElement )
 
 	
 		// Hide files
@@ -65,7 +68,7 @@ export class GitLabTree
 		this.copyAndHideFiles( files );
 
 
-		//this.leftElement.appendChild( fileNamesDOM );
+		// this.leftElement.appendChild( fileNamesDOM );
 		files.appendChild( this.wrapperElement );
 
 		// Adjust DOM so that the Changes tab uses 100% width
@@ -139,9 +142,9 @@ export class GitLabTree
 	 */
 	makeChangesTabWider(): void
 	{
-		const contentWrapper = document.querySelector( '.content-wrapper' ) as HTMLElement;
-		const tabs = document.querySelector( '.merge-request-tabs-holder' ) as HTMLElement;
-		const tabsContent = document.querySelector( '.tab-content' ) as HTMLElement;
+		const contentWrapper: HTMLElement = document.querySelector( '.content-wrapper' ) as HTMLElement;
+		const tabs: HTMLElement = document.querySelector( '.merge-request-tabs-holder' ) as HTMLElement;
+		const tabsContent: HTMLElement = document.querySelector( '.tab-content' ) as HTMLElement;
 		
 		if ( ! contentWrapper || ! tabs || ! tabsContent )
 		{
@@ -164,12 +167,12 @@ export class GitLabTree
 	{
 		tabs.parentElement.removeChild( tabs );
 
-		const tabsWrapper = document.createElement( 'div' );
+		const tabsWrapper: HTMLElement = document.createElement( 'div' );
 		tabsWrapper.classList.add(
 			'container-fluid',
 			'limit-container-width',
 			'container-fixed',
-			'gitlab-tree-tabs-wrapper'
+			'gitlab-tree-tabs-wrapper',
 		);
 		tabsWrapper.appendChild( tabs );
 
@@ -188,9 +191,9 @@ export class GitLabTree
 	{
 		tabsContent.parentElement.removeChild( tabsContent );
 
-		for ( let i = 0; i < tabsContent.childElementCount; i++ )
+		for ( let i: number = 0; i < tabsContent.childElementCount; i++ )
 		{
-			let content = tabsContent.children[i];
+			const content: HTMLElement = tabsContent.children[i] as HTMLElement;
 
 			// Add the GitLab container margin and padding class
 			content.classList.add( 'container-fluid' );
@@ -211,11 +214,11 @@ export class GitLabTree
 	 * 
 	 * @param {MouseEvent} event - click event on .holder element
 	 */
-	toggleExpand( event: MouseEvent )
+	toggleExpand( event: MouseEvent ): void
 	{
-		let folder = (event.target as HTMLElement).parentElement;
-		let isExpanded = folder.classList.contains( CSS_PREFIX + '-folder-expanded' );
-		let isMainFolder = document.querySelector( `.${CSS_PREFIX}-left > .folder` ) === folder;
+		const folder: HTMLElement = (event.target as HTMLElement).parentElement;
+		const isExpanded: boolean = folder.classList.contains( CSS_PREFIX + '-folder-expanded' );
+		const isMainFolder: boolean = document.querySelector( `.${CSS_PREFIX}-left > .folder` ) === folder;
 
 		if ( ! isMainFolder )
 		{
@@ -243,7 +246,9 @@ export class GitLabTree
 	 */
 	showFile( hash?: string ): void
 	{
-		if ( this.metadata.getAll().length === 0 )
+		const metadata: Metadata = this.container.get( Metadata );
+
+		if ( metadata.getAll().length === 0 )
 		{
 			return;
 		}
@@ -251,14 +256,13 @@ export class GitLabTree
 		if ( this.lastActive )
 		{
 			this.getFileHolderByHash( this.lastActive ).classList.add( CSS_PREFIX + '-hidden' );
-			this.getFileLinkByHash( this.lastActive ).classList.remove( CSS_PREFIX + '-file-active' );
+			this.getFileLinkByHash( this.lastActive ).setInactive();
 		}
 		
-		
-		hash = this.metadata.getAll().filter( m => m.hash === hash ).length > 0 ? hash : this.metadata[0].hash; // if hash is invalid use default hash
+		hash = metadata.getAll().filter( m => m.hash === hash ).length > 0 ? hash : metadata.getAll()[0].hash; // if hash is invalid use default hash
 
 		this.getFileHolderByHash( hash ).classList.remove( CSS_PREFIX + '-hidden' );
-		this.getFileLinkByHash( hash ).classList.add( CSS_PREFIX + '-file-active' );
+		this.getFileLinkByHash( hash ).setActive();
 
 		this.lastActive = hash;
 	}
@@ -268,28 +272,10 @@ export class GitLabTree
 		return this.rightElement.querySelector( `[id='${ hash.substr(1) }']` ) as HTMLElement;
 	}
 
-	getFileLinkByHash( hash: string ): HTMLElement
+	getFileLinkByHash( hash: string ): File
 	{
-		return this.leftElement.querySelector( `[href='${ hash }']` ) as HTMLElement;
+		const structure: Structure = this.container.get( Structure );
+		console.log( structure.flatFileStructure )
+		return structure.flatFileStructure.find( file => file.state.hash === hash );
 	}
 }
-
-
-
-let instance: GitLabTree = new GitLabTree();
-
-/**
- * This is for fake AJAX re-renders of the page.
- */
-function checkSiteChange(): void
-{
-	let files: Element = document.querySelector( '.files' );
-
-	if ( files && ! files.classList.contains( CSS_PREFIX ) )
-	{
-		instance.teardown();
-		instance = new GitLabTree();
-	}
-}
-
-setInterval( () => checkSiteChange(), 3000 )

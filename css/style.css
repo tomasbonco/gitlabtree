@@ -18,37 +18,37 @@
     overflow: auto;
 }
 
-.gitlab-tree-plugin-left .folder
+.gitlab-tree-plugin-left .gitlab-tree-plugin-folder
 {
     padding-left: 20px;
     margin-bottom: 10px;
 }
 
-.gitlab-tree-plugin-left .folder .holder
+.gitlab-tree-plugin-left .gitlab-tree-plugin-folder .gitlab-tree-plugin-holder
 {
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow: hidden;
 }
 
-.gitlab-tree-plugin-left .folder .holder:before
+.gitlab-tree-plugin-left .gitlab-tree-plugin-folder .gitlab-tree-plugin-holder:before
 {
     font: normal normal normal 14px/1 FontAwesome;
     content: "\f115";
     padding-right: 7px;
 }
 
-.gitlab-tree-plugin-left > .folder
+.gitlab-tree-plugin-left > .gitlab-tree-plugin-folder
 {
     padding-left: 0px;
 }
 
-.gitlab-tree-plugin-left > .folder > .folder
+.gitlab-tree-plugin-left > .gitlab-tree-plugin-folder > .gitlab-tree-plugin-folder
 {
     padding-left: 15px;
 }
 
-.gitlab-tree-plugin-left > .folder > .holder
+.gitlab-tree-plugin-left > .gitlab-tree-plugin-folder > .gitlab-tree-plugin-holder
 {
     background-color: #fafafa;
     border-bottom: 1px solid #e5e5e5;
@@ -61,23 +61,23 @@
     margin-bottom: 15px;
 }
 
-.gitlab-tree-plugin-left > .folder > .holder:before
+.gitlab-tree-plugin-left > .gitlab-tree-plugin-folder > .gitlab-tree-plugin-holder:before
 {
     content: "\f07c";
 }
 
 
-.gitlab-tree-plugin-left .folder.gitlab-tree-plugin-folder-collapsed > .holder:before
+.gitlab-tree-plugin-left .gitlab-tree-plugin-folder.gitlab-tree-plugin-folder-collapsed > .gitlab-tree-plugin-holder:before
 {
     content: "\f114";
 }
 
-.gitlab-tree-plugin-left .folder.gitlab-tree-plugin-folder-collapsed > .folder
+.gitlab-tree-plugin-left .gitlab-tree-plugin-folder.gitlab-tree-plugin-folder-collapsed > .gitlab-tree-plugin-folder
 {
     display: none;
 }
 
-.gitlab-tree-plugin-left .folder.gitlab-tree-plugin-folder-collapsed > a
+.gitlab-tree-plugin-left .gitlab-tree-plugin-folder.gitlab-tree-plugin-folder-collapsed > a
 {
     display: none;
 }

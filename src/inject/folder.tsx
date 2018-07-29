@@ -1,14 +1,29 @@
-export class Folder
+import { h, Component } from 'preact';
+import { File } from './file'
+import { CSS_PREFIX } from './constants'
+
+
+export class Folder extends Component
 {
-	props: { name: string; };
+	state: { name: string; } = { name: '' };
 
 	private subfolders: Folder[] = [];
 	private files: File[] = [];
 
 
-	setProps( name: string )
+	init( name: string ): Folder
 	{
-		this.props = { name };
+		this.setProps({ name })
+
+		return this;
+	}
+
+
+	setProps( newProps: any ): Folder
+	{
+		this.setState( newProps );
+
+		return this;
 	}
 
 
@@ -24,17 +39,17 @@ export class Folder
 	}
 
 
-	addFolder( ...folders: Folder[] )
+	addFolder( ...folders: Folder[] ): void
 	{
-		const copy = this.subfolders.slice(0)
+		const copy: Folder[] = this.subfolders.slice(0)
 		copy.push( ...folders );
 		this.subfolders = copy;
 	}
 
 
-	addFile( ...files: File[] )
+	addFile( ...files: File[] ): void
 	{
-		const copy = this.files.slice(0);
+		const copy: File[] = this.files.slice(0);
 		copy.push( ...files );
 		this.files = copy;
 	}
@@ -42,7 +57,7 @@ export class Folder
 
 	getFolder( folderName: string ): Folder
 	{
-		return this.subfolders.find( x => x.name === folderName );
+		return this.subfolders.find( x => x.state.name === folderName );
 	}
 
 
@@ -52,37 +67,45 @@ export class Folder
 	}
 
 
-	getFolders( sort = 0 )
+	getFolders( sort = 0 ): Folder[]
 	{
-		const copy = this.subfolders.slice( 0 );
+		const copy: Folder[] = this.subfolders.slice( 0 );
 		// copy.sort( ( a, b ) );
 
 		return copy;
 	}
 
 
-	getFiles( sort = 0 )
+	getFiles( sort = 0 ): File[]
 	{
-		const copy = this.files.slice( 0 );
+		const copy: File[] = this.files.slice( 0 );
 		return copy;
 	}
 
 
-	dropFolders()
+	dropFolders(): void
 	{
 		this.subfolders = [];
 	}
 
 
-	dropFiles()
+	dropFiles(): void
 	{
 		this.files = [];
 	}
 
-	render()
+
+	render(): any
 	{
+		console.log( this.state )
 		return (
-			<div></div>
+			<div class={ `${CSS_PREFIX}-folder ${CSS_PREFIX}-folder-expanded`}>
+			
+				<div class={CSS_PREFIX + '-holder'} title={this.state.name}> {this.state.name}</div>
+				{ this.subfolders.map( fdr => fdr.render() )}
+				{ this.files.map( fls => fls.render() )}
+
+			</div>
 		)
 	}
 }

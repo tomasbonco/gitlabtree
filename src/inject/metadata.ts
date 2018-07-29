@@ -1,6 +1,6 @@
 export enum EFileState { ADDED, UPDATED, RENAMED, DELETED };
 
-interface IMetadata
+export interface IMetadata
 {
 	type: EFileState; // 'renamed' | 'deleted' | 'edit' | 'new';
 	hash: string;
@@ -55,10 +55,10 @@ export class Metadata
 	 */
 	private obtainMetadata(): IMetadata[]
 	{
-		const metadataFiles_v10_3_and_latest: () => HTMLElement[] = () => Array.prototype.slice.call( document.querySelectorAll( '.diff-file-changes .dropdown-content li:not(.hidden)' ));
+		const metadataFiles_v10_3_and_latest: () => HTMLElement[] = () => Array.prototype.slice.call( document.querySelectorAll( '.diff-file-changes .dropdown-content li:not(.hidden):not(.dropdown-menu-empty-item)' ));
 		const metadataFiles_v9_5: () => HTMLElement[] = () => Array.prototype.slice.call( document.querySelectorAll( '.file-stats li' ));
 
-		const files_latest = metadataFiles_v10_3_and_latest();
+		const files_latest: HTMLElement[] = metadataFiles_v10_3_and_latest();
 
 		if ( files_latest.length > 0 )
 		{
@@ -84,13 +84,14 @@ export class Metadata
 	 *
 	 * @param {HTMLElement[]} rawFilesMetadata - HTML elements of file changed in commit(s)
 	 */
-	private obtainMetadata_latest( rawFilesMetadata: HTMLElement[] )
+	private obtainMetadata_latest( rawFilesMetadata: HTMLElement[] ): IMetadata[]
 	{
 		const metadata: IMetadata[] = [];
 
 		for ( let rawFileMetadata of rawFilesMetadata )
 		{
 			const svgElement: HTMLElement = rawFileMetadata.querySelector( 'svg.diff-file-changed-icon' ) as HTMLElement;
+			console.log( svgElement, rawFileMetadata )
 			const typeRaw: string = svgElement.querySelector( 'use' ).getAttribute('xlink:href').split('#')[1];
 			const hash: string = rawFileMetadata.querySelector( 'a' ).getAttribute('href');
 			const filename: string = rawFileMetadata.querySelector( '.diff-changed-file' ).getAttribute('title');
@@ -120,13 +121,13 @@ export class Metadata
 	 * See https://github.com/tomasbonco/gitlabtree/issues/3
 	 * @param {HTMLElement[]} rawFilesMetadata - HTML elements of file changed in commit(s)
 	 */
-	private obtainMetadata_v10_3( rawFilesMetadata: HTMLElement[] )
+	private obtainMetadata_v10_3( rawFilesMetadata: HTMLElement[] ): IMetadata[]
 	{
 		let metadata: IMetadata[] = [];
 
 		for ( let rawFileMetadata of rawFilesMetadata )
 		{
-			const classList = rawFileMetadata.querySelector( 'a i:first-child' ).classList;
+			const classList: DOMTokenList = rawFileMetadata.querySelector( 'a i:first-child' ).classList;
 			const hash: string = rawFileMetadata.querySelector( 'a' ).getAttribute('href');
 			let filename: string = rawFileMetadata.querySelector( '.diff-file-changes-path' ).textContent.trim();
 			let type: EFileState = EFileState.UPDATED;
@@ -161,9 +162,9 @@ export class Metadata
 	 * See https://github.com/tomasbonco/gitlabtree/issues/2
 	 * @param {HTMLElement[]} rawFilesMetadata - HTML elements of file changed in commit(s)
 	 */
-	private obtainMetadata_v9_5( rawFilesMetadata )
+	private obtainMetadata_v9_5( rawFilesMetadata: HTMLElement[] ): IMetadata[]
 	{
-		let metadata: IMetadata[] = [];
+		const metadata: IMetadata[] = [];
 
 		for ( let rawFileMetadata of rawFilesMetadata )
 		{
@@ -201,13 +202,13 @@ export class Metadata
 	/**
 	 * Adds flag 'commented' to metadata for every file that was commented.
 	 */
-	obtainCommentedFiles()
+	private obtainCommentedFiles(): void
 	{
-		const fileHolders = Array.prototype.slice.call( this.fileHolders );
+		const fileHolders: HTMLElement[] = Array.prototype.slice.call( this.fileHolders );
 
-		fileHolders.forEach( ( fileHolder, index ) =>
+		fileHolders.forEach( ( fileHolder: HTMLElement, index: number ) =>
 		{
-			const metadata = this.get( index );
+			const metadata: IMetadata = this.get( index );
 			metadata.commented = !! fileHolder.querySelector( '.notes_holder' );
 		})
 	}

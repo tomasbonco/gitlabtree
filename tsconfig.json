@@ -1,0 +1,9 @@
+{
+	"compilerOptions": {
+		"experimentalDecorators": true,
+		"emitDecoratorMetadata": true,
+		"jsx": "react",
+		"jsxFactory": "h",
+		"target": "es6"
+	}
+}

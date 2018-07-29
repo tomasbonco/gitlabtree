@@ -1,41 +1,85 @@
-import { autoinject } from "./container";
-import { Metadata } from "./metadata";
+import { autoinject } from './container';
+import { Metadata, IMetadata, EFileState } from './metadata';
+import { h, Component } from 'preact';
+import { CSS_PREFIX } from './constants'
+
+interface IFileProps
+{
+	id: number;
+	fullName: string;
+	name: string;
+	ext: string;
+	hash: string;
+	type: EFileState;
+	isCommented: boolean;
+	isActive: boolean;
+}
+
 
 @autoinject
-export class File
+export class File extends Component
 {
-	props: {
-		id: number;
-		fullName: string;
-		name: string;
-		ext: string;
-		hash: string;
-	};
+	state: IFileProps = {} as IFileProps;
 
 
 	constructor( private metadata: Metadata )
 	{
+		super();
 	}
 
 
-	setProps( fullName: string, id: number )
+	init( fullName: string, id: number ): File
 	{
-		const parts = fullName.split( '.' );
-		this.props =
+		this.setProps({ fullName, id })
+
+		return this;
+	}
+
+
+	setProps( newProps: any ): File
+	{
+		if ( newProps.fullName )
 		{
-			id,
-			fullName,
-			ext: parts.pop(),
-			name: parts.join( '.' ),
-			hash: ''
+			const fileNameParts: string[] = newProps.fullName.split( '.' );
+			newProps.ext = fileNameParts.length > 0 ? fileNameParts.pop() : '';
+			newProps.name = fileNameParts.join( '.' );
 		}
+
+		console.log( newProps )
+		if ( newProps.id !== undefined )
+		{
+			console.log( 'well be famous')
+			const metadata: IMetadata = this.metadata.get( newProps.id );
+			newProps.hash = metadata.hash;
+			newProps.type = metadata.type;
+			newProps.isCommented = metadata.commented;
+		}
+
+		this.setState( newProps )
+
+		return this;
 	}
 
 
-	render()
+	setActive(): void
 	{
-		<a href="{this.hash}" class="file gitlab-tree-plugin-file-updated gitlab-tree-plugin-file-active">
-			<span> { this.fullName } </span>
-		</a>
+		this.setProps({ isActive: true })
+	}
+
+	
+	setInactive(): void
+	{
+		this.setProps({ isActive: false })
+	}
+
+
+	render(): any
+	{
+		console.log( 'yuy', this.state.isActive )
+		return (
+			<a href={this.state.hash} class={`file gitlab-tree-plugin-file-updated ${ this.state.isActive ? CSS_PREFIX + '-active' : '' }`}>
+				<span> { this.state.fullName } </span>
+			</a>
+		)
 	}
 }

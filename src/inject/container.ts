@@ -47,6 +47,12 @@ export class Container
 	}
 
 
+	drop( key: any ): boolean
+	{
+		return this.instances.delete( key );
+	}
+
+
 	getInstance( key: any ): any
 	{
 		return this.instances.get( key );
@@ -113,16 +119,16 @@ export class Container
 	}
 }
 
-export function inject( ...dependecies )
+export function inject( ...dependecies: any[] ): ( target: any ) => void
 {
-	return function( target )
+	return function( target: any ): void
 	{
 		target.__inject = dependecies;
 	}
 }
 
 
-export function autoinject( potentialTarget? ): any
+export function autoinject( potentialTarget?: any ): any
 {
 	const deco = function( target )
 	{
@@ -199,7 +205,7 @@ export class Parent extends Resolver
 
 	resolve( container: Container ): any
 	{
-		const parent = container.getParent();
+		const parent: Container = container.getParent();
 
 		if ( ! parent )
 		{

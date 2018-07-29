@@ -1,10 +1,10 @@
 {
   "devDependencies": {
+    "parcel-plugin-typescript": "^1.0.0",
+    "preact": "^8.2.9",
     "typescript": "^2.9.2"
   },
   "dependencies": {
-    "hyperapp": "^1.2.8",
-    "jest": "^23.4.2",
     "reflect-metadata": "^0.1.12"
   }
 }

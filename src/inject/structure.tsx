@@ -1,23 +1,29 @@
 import { Metadata } from './metadata';
 import { Folder } from './folder';
-import { Container } from './container';
+import { File } from './file';
+import { Container, autoinject, Instance } from './container';
 
+@autoinject
 export class Structure
 {
 	plainFileNames: string[];
-	files: Folder;
+	entryPoint: Folder;
+	flatFileStructure: File[];
 
 
 	constructor( private container: Container, private metadata: Metadata )
 	{
 		this.plainFileNames = this.metadata.getAll().map( m => m.filename );
 
-		const prefix = this.getPrefixPath( this.plainFileNames );
-		const fileNamesWithoutPrefix = this.removePathPrefix( this.plainFileNames, prefix );
-		const folderStructure = this.createFolderStructure( fileNamesWithoutPrefix );
-		const optimized = this.reduceSingleChildFolders( folderStructure );
+		const prefix: string = this.getPrefixPath( this.plainFileNames );
+		const fileNamesWithoutPrefix: string[] = this.removePathPrefix( this.plainFileNames, prefix );
+		const { treeStructure, flatFileStructure } = this.createFolderStructure( fileNamesWithoutPrefix );
+		const optimized: Folder = this.reduceSingleChildFolders( treeStructure );
 
-		this.files = optimized;
+		this.entryPoint = optimized;
+		this.entryPoint.setProps({ name: prefix })
+
+		this.flatFileStructure = flatFileStructure;
 	}
 
 
@@ -101,9 +107,10 @@ export class Structure
 	 * @param {string} fileNames - list of filenames
 	 * @return {any} generated folder structure
 	 */
-	private createFolderStructure( fileNames: string[] ): Folder
+	private createFolderStructure( fileNames: string[] ): { treeStructure: Folder, flatFileStructure: File[] }
 	{
-		const mainFolder: Folder = this.container.getInstance( Folder ).setProps('');
+		const mainFolder: Folder = this.container.get( Instance.of( Folder ) ).init('');
+		const flatFileStructure: File[] = [];
 
 		if ( ! Array.isArray( fileNames ) || fileNames.length === 0 )
 		{
@@ -123,17 +130,30 @@ export class Structure
 
 				if ( ii === fileNameParts.length - 1 ) // is last one
 				{
-					currentFolder.addFile( this.container.getInstance( File ).setProps( part, i ) );
+					const file: File = this.container.get( Instance.of( File ) ).init( part, i )
+					currentFolder.addFile( file );
+					flatFileStructure.push( file );
 				}
 
 				else
 				{
-					currentFolder = ! currentFolder.hasFolder( part ) ? this.container.getInstance( Folder ).setProps( part ) : currentFolder.getFolder( part );
+					if ( ! currentFolder.hasFolder( part ))
+					{
+						const newSubFolder: Folder = this.container.get( Instance.of( Folder ) ).init( part );
+						currentFolder.addFolder( newSubFolder );
+
+						currentFolder = newSubFolder;
+					}
+					
+					else
+					{
+						currentFolder = currentFolder.getFolder( part );
+					}
 				}
 			}
 		}
 
-		return mainFolder;
+		return { treeStructure: mainFolder, flatFileStructure };
 	}
 
 
@@ -147,8 +167,8 @@ export class Structure
 
 		else if ( folder.subfoldersSize === 1 && folder.filesSize === 0 )
 		{
-			const childFolder = folder.getFolders()[0];
-			folder.setProps( `${folder.props.name}/${childFolder.props.name}` );
+			const childFolder: Folder = folder.getFolders()[0];
+			folder.setProps({ name: `${folder.state.name}/${childFolder.state.name}` });
 
 			folder.dropFolders();
 			folder.addFolder( ...childFolder.getFolders() );
