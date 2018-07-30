@@ -4,7 +4,6 @@ import { CSS_PREFIX } from './constants'
 import { Navigation } from './navigation';
 import { Structure } from './structure'
 import { File } from './File'
-import { h, render} from 'preact'
 
 @autoinject
 export class GitLabTree
@@ -27,13 +26,7 @@ export class GitLabTree
 	constructor( private container: Container )
 	{
 		this.init();
-
-
-		// Detection if we are on GitLab page
-
-		const isGitLab: Element = document.querySelector( 'meta[content="GitLab"]' );
-		if ( ! isGitLab ) { return; }
-
+		
 
 		// Detection if we have any files to generate tree from
 
@@ -60,11 +53,9 @@ export class GitLabTree
 		// Analyze filenames
 
 		const navigation: Navigation = container.get( Navigation )
-		const navigationView: any = render( navigation.render(), this.leftElement )
+		this.leftElement.innerHTML = navigation.render();
 
-	
 		// Hide files
-
 		this.copyAndHideFiles( files );
 
 
@@ -73,6 +64,7 @@ export class GitLabTree
 
 		// Adjust DOM so that the Changes tab uses 100% width
 		this.makeChangesTabWider();
+
 
 		// Show file based on hash id
 
@@ -275,7 +267,6 @@ export class GitLabTree
 	getFileLinkByHash( hash: string ): File
 	{
 		const structure: Structure = this.container.get( Structure );
-		console.log( structure.flatFileStructure )
 		return structure.flatFileStructure.find( file => file.state.hash === hash );
 	}
 }

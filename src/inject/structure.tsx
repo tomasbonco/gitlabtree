@@ -21,7 +21,7 @@ export class Structure
 		const optimized: Folder = this.reduceSingleChildFolders( treeStructure );
 
 		this.entryPoint = optimized;
-		this.entryPoint.setProps({ name: prefix })
+		this.entryPoint.updateState({ name: prefix })
 
 		this.flatFileStructure = flatFileStructure;
 	}
@@ -168,7 +168,7 @@ export class Structure
 		else if ( folder.subfoldersSize === 1 && folder.filesSize === 0 )
 		{
 			const childFolder: Folder = folder.getFolders()[0];
-			folder.setProps({ name: `${folder.state.name}/${childFolder.state.name}` });
+			folder.updateState({ name: `${folder.state.name}/${childFolder.state.name}` });
 
 			folder.dropFolders();
 			folder.addFolder( ...childFolder.getFolders() );

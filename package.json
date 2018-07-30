@@ -1,7 +1,6 @@
 {
   "devDependencies": {
     "parcel-plugin-typescript": "^1.0.0",
-    "preact": "^8.2.9",
     "typescript": "^2.9.2"
   },
   "dependencies": {

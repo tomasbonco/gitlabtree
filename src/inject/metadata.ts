@@ -91,7 +91,6 @@ export class Metadata
 		for ( let rawFileMetadata of rawFilesMetadata )
 		{
 			const svgElement: HTMLElement = rawFileMetadata.querySelector( 'svg.diff-file-changed-icon' ) as HTMLElement;
-			console.log( svgElement, rawFileMetadata )
 			const typeRaw: string = svgElement.querySelector( 'use' ).getAttribute('xlink:href').split('#')[1];
 			const hash: string = rawFileMetadata.querySelector( 'a' ).getAttribute('href');
 			const filename: string = rawFileMetadata.querySelector( '.diff-changed-file' ).getAttribute('title');

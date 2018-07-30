@@ -1,9 +1,8 @@
 import { autoinject } from './container';
 import { Metadata, IMetadata, EFileState } from './metadata';
-import { h, Component } from 'preact';
-import { CSS_PREFIX } from './constants'
+import { CSS_PREFIX } from './constants';
 
-interface IFileProps
+export interface IFileProps
 {
 	id: number;
 	fullName: string;
@@ -17,45 +16,43 @@ interface IFileProps
 
 
 @autoinject
-export class File extends Component
+export class File
 {
+	id: string = 'gtp' + Math.random().toString(36).substr(2, 10);
 	state: IFileProps = {} as IFileProps;
 
 
 	constructor( private metadata: Metadata )
-	{
-		super();
-	}
+	{}
 
 
 	init( fullName: string, id: number ): File
 	{
-		this.setProps({ fullName, id })
+		this.updateState({ fullName, id })
 
 		return this;
 	}
 
 
-	setProps( newProps: any ): File
+	updateState( changes: any ): File
 	{
-		if ( newProps.fullName )
+		if ( changes.fullName )
 		{
-			const fileNameParts: string[] = newProps.fullName.split( '.' );
-			newProps.ext = fileNameParts.length > 0 ? fileNameParts.pop() : '';
-			newProps.name = fileNameParts.join( '.' );
+			const fileNameParts: string[] = changes.fullName.split( '.' );
+			changes.ext = fileNameParts.length > 0 ? fileNameParts.pop() : '';
+			changes.name = fileNameParts.join( '.' );
 		}
 
-		console.log( newProps )
-		if ( newProps.id !== undefined )
+		if ( changes.id !== undefined )
 		{
-			console.log( 'well be famous')
-			const metadata: IMetadata = this.metadata.get( newProps.id );
-			newProps.hash = metadata.hash;
-			newProps.type = metadata.type;
-			newProps.isCommented = metadata.commented;
+			const metadata: IMetadata = this.metadata.get( changes.id );
+			changes.hash = metadata.hash;
+			changes.type = metadata.type;
+			changes.isCommented = metadata.commented;
 		}
 
-		this.setState( newProps )
+		Object.assign( this.state, changes );
+		this.tryToRerender();
 
 		return this;
 	}
@@ -63,23 +60,34 @@ export class File extends Component
 
 	setActive(): void
 	{
-		this.setProps({ isActive: true })
+		this.updateState({ isActive: true })
 	}
 
 	
 	setInactive(): void
 	{
-		this.setProps({ isActive: false })
+		this.updateState({ isActive: false })
 	}
 
 
-	render(): any
+	tryToRerender(): void
 	{
-		console.log( 'yuy', this.state.isActive )
-		return (
-			<a href={this.state.hash} class={`file gitlab-tree-plugin-file-updated ${ this.state.isActive ? CSS_PREFIX + '-active' : '' }`}>
-				<span> { this.state.fullName } </span>
-			</a>
-		)
+		const element: HTMLElement = document.getElementById( this.id );
+
+		if ( element )
+		{
+			element.outerHTML = this.render();
+		}
+	}
+
+
+	render(): string
+	{
+		return `
+		<a id="${this.id}" href="${this.state.hash}" class="file gitlab-tree-plugin-file-${EFileState[this.state.type].toLocaleLowerCase()} ${ this.state.isActive ? CSS_PREFIX + '-file-active' : '' }">
+			${ this.state.isCommented ? `<i class="fa fa-comments-o ${CSS_PREFIX}-file-commented-icon"></i>` : ''}
+			<span> ${ this.state.fullName } </span>
+		</a>
+		`
 	}
 }

@@ -1,27 +1,25 @@
-import { h, Component } from 'preact';
 import { File } from './file'
 import { CSS_PREFIX } from './constants'
 
 
-export class Folder extends Component
+export class Folder
 {
-	state: { name: string; } = { name: '' };
-
-	private subfolders: Folder[] = [];
-	private files: File[] = [];
+	id: string = 'gtp' + Math.random().toString(36).substr(2, 10);
+	state: { name: string; subfolders: Folder[]; files: File[] } = { name: '', subfolders: [], files: [] };
 
 
 	init( name: string ): Folder
 	{
-		this.setProps({ name })
+		this.updateState({ name })
 
 		return this;
 	}
 
 
-	setProps( newProps: any ): Folder
+	updateState( changes: any ): Folder
 	{
-		this.setState( newProps );
+		Object.assign( this.state, changes )
+		this.tryToRerender();
 
 		return this;
 	}
@@ -29,35 +27,35 @@ export class Folder extends Component
 
 	get subfoldersSize(): number
 	{
-		return this.subfolders.length;
+		return this.state.subfolders.length;
 	}
 
 
 	get filesSize(): number
 	{
-		return this.files.length;
+		return this.state.files.length;
 	}
 
 
 	addFolder( ...folders: Folder[] ): void
 	{
-		const copy: Folder[] = this.subfolders.slice(0)
+		const copy: Folder[] = this.state.subfolders.slice(0)
 		copy.push( ...folders );
-		this.subfolders = copy;
+		this.updateState({ subfolders: copy })
 	}
 
 
 	addFile( ...files: File[] ): void
 	{
-		const copy: File[] = this.files.slice(0);
+		const copy: File[] = this.state.files.slice(0);
 		copy.push( ...files );
-		this.files = copy;
+		this.updateState({ files: copy })
 	}
 
 
 	getFolder( folderName: string ): Folder
 	{
-		return this.subfolders.find( x => x.state.name === folderName );
+		return this.state.subfolders.find( x => x.state.name === folderName );
 	}
 
 
@@ -69,7 +67,7 @@ export class Folder extends Component
 
 	getFolders( sort = 0 ): Folder[]
 	{
-		const copy: Folder[] = this.subfolders.slice( 0 );
+		const copy: Folder[] = this.state.subfolders.slice( 0 );
 		// copy.sort( ( a, b ) );
 
 		return copy;
@@ -78,34 +76,44 @@ export class Folder extends Component
 
 	getFiles( sort = 0 ): File[]
 	{
-		const copy: File[] = this.files.slice( 0 );
+		const copy: File[] = this.state.files.slice( 0 );
 		return copy;
 	}
 
 
 	dropFolders(): void
 	{
-		this.subfolders = [];
+		this.updateState({ subfolders: [] })
 	}
 
 
 	dropFiles(): void
 	{
-		this.files = [];
+		this.updateState({ files: [] })
 	}
 
 
-	render(): any
+	tryToRerender(): void
 	{
-		console.log( this.state )
-		return (
-			<div class={ `${CSS_PREFIX}-folder ${CSS_PREFIX}-folder-expanded`}>
+		const element: HTMLElement = document.getElementById( this.id );
+
+		if ( element )
+		{
+			element.outerHTML = this.render();
+		}
+	}
+
+
+	render(): string
+	{
+		return `
+			<div class="${CSS_PREFIX}-folder ${CSS_PREFIX}-folder-expanded" id="${this.id}">
 			
-				<div class={CSS_PREFIX + '-holder'} title={this.state.name}> {this.state.name}</div>
-				{ this.subfolders.map( fdr => fdr.render() )}
-				{ this.files.map( fls => fls.render() )}
+				<div class="${CSS_PREFIX}-holder" title="${this.state.name}"> ${this.state.name} </div>
+				${ this.state.subfolders.map( fdr => fdr.render() ).join('')}
+				${ this.state.files.map( fls => fls.render() ).join('')}
 
 			</div>
-		)
+		`
 	}
 }
