@@ -1,7 +1,7 @@
 import { Metadata } from './metadata';
-import { Folder } from './folder';
-import { File } from './file';
-import { Container, autoinject, Instance } from './container';
+import { Folder } from '../folder';
+import { File } from '../file';
+import { Container, autoinject, Instance } from '../libs/container';
 
 @autoinject
 export class Structure
@@ -21,7 +21,7 @@ export class Structure
 		const optimized: Folder = this.reduceSingleChildFolders( treeStructure );
 
 		this.entryPoint = optimized;
-		this.entryPoint.updateState({ name: prefix })
+		this.entryPoint.updateState({ name: prefix, isRoot: true })
 
 		this.flatFileStructure = flatFileStructure;
 	}

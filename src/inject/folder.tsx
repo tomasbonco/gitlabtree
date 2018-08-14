@@ -1,11 +1,30 @@
 import { File } from './file'
 import { CSS_PREFIX } from './constants'
+import { h } from 'superfine'
+import { autoinject } from './libs/container';
+import { Views } from './libs/views';
+import { SettingsStore } from './settings.store';
+import { EFileSort } from './settings';
 
 
+interface IFolderState
+{
+	name: string;
+	subfolders: Folder[];
+	files: File[];
+	isExpanded: boolean;
+	isRoot: boolean;
+}
+
+
+@autoinject
 export class Folder
 {
-	id: string = 'gtp' + Math.random().toString(36).substr(2, 10);
-	state: { name: string; subfolders: Folder[]; files: File[] } = { name: '', subfolders: [], files: [] };
+	state: IFolderState = { name: '', subfolders: [], files: [], isExpanded: true, isRoot: false };
+
+
+	constructor( private views: Views, private settingsStore: SettingsStore )
+	{}
 
 
 	init( name: string ): Folder
@@ -19,7 +38,7 @@ export class Folder
 	updateState( changes: any ): Folder
 	{
 		Object.assign( this.state, changes )
-		this.tryToRerender();
+		this.views.redrawView( 'navigation' );
 
 		return this;
 	}
@@ -65,10 +84,24 @@ export class Folder
 	}
 
 
-	getFolders( sort = 0 ): Folder[]
+	getFolders( sort: EFileSort = EFileSort.AZName ): Folder[]
 	{
 		const copy: Folder[] = this.state.subfolders.slice( 0 );
-		// copy.sort( ( a, b ) );
+
+		switch ( sort )
+		{
+			case EFileSort.AZExt:
+			case EFileSort.AZName:
+
+				copy.sort( (a: Folder, b: Folder) => a.state.name.localeCompare( b.state.name ) )
+				break;
+
+			case EFileSort.ZAExt:
+			case EFileSort.ZAName:
+
+				copy.sort( (a: Folder, b: Folder) => b.state.name.localeCompare( a.state.name ) )
+				break;
+		}
 
 		return copy;
 	}
@@ -77,6 +110,76 @@ export class Folder
 	getFiles( sort = 0 ): File[]
 	{
 		const copy: File[] = this.state.files.slice( 0 );
+
+		switch ( sort )
+		{
+			case EFileSort.AZExt:
+
+				copy.sort(( a: File, b: File ) =>
+				{
+					const cmp: number = a.state.ext.localeCompare( b.state.ext )
+
+					if ( cmp === 0 )
+					{
+						return a.state.name.localeCompare( b.state.name )
+					}
+				})
+				
+				break;
+
+
+			case EFileSort.AZName:
+
+				copy.sort(( a: File, b: File ) =>
+				{
+					const cmp: number = a.state.name.localeCompare( b.state.name )
+
+					if ( cmp === 0 )
+					{
+						return a.state.ext.localeCompare( b.state.ext )
+					}
+
+					return cmp;
+				})
+
+				break;
+
+
+			case EFileSort.ZAExt:
+
+
+				copy.sort(( b: File, a: File ) =>
+				{
+					const cmp: number = a.state.ext.localeCompare( b.state.ext )
+
+					if ( cmp === 0 )
+					{
+						return a.state.name.localeCompare( b.state.name )
+					}
+
+					return cmp;
+				})
+				
+				break;
+
+
+			case EFileSort.ZAName:
+
+				copy.sort(( b: File, a: File ) =>
+				{
+					const cmp: number = a.state.name.localeCompare( b.state.name )
+
+					if ( cmp === 0 )
+					{
+						return a.state.ext.localeCompare( b.state.ext )
+					}
+
+					return cmp;
+				})
+
+				break;
+		}
+
 		return copy;
 	}
 
@@ -93,27 +196,31 @@ export class Folder
 	}
 
 
-	tryToRerender(): void
-	{
-		const element: HTMLElement = document.getElementById( this.id );
 
-		if ( element )
-		{
-			element.outerHTML = this.render();
-		}
+	// View
+
+	/**
+	 * Clicking on the folder name, collapses or expands folder content.
+	 */
+	toggleIsFolderExpanded()
+	{
+		this.state.isExpanded = ! this.state.isExpanded;
+		this.views.redrawView( 'navigation' );
 	}
 
 
-	render(): string
+	render()
 	{
-		return `
-			<div class="${CSS_PREFIX}-folder ${CSS_PREFIX}-folder-expanded" id="${this.id}">
+		const expandedClass = CSS_PREFIX + ( this.state.isExpanded || this.state.isRoot ? `-folder-expanded` : `-folder-collapsed` );
+
+		return (
+			<div class={`${CSS_PREFIX}-folder ${ expandedClass }`}>
 			
-				<div class="${CSS_PREFIX}-holder" title="${this.state.name}"> ${this.state.name} </div>
-				${ this.state.subfolders.map( fdr => fdr.render() ).join('')}
-				${ this.state.files.map( fls => fls.render() ).join('')}
+				<div class={CSS_PREFIX + '-holder'} title={this.state.name} onclick={ () => this.toggleIsFolderExpanded() }> {this.state.name} </div>
+				{ this.getFolders( parseInt( this.settingsStore.get( 'file-sort' )) ).map( fdr => fdr.render() ) }
+				{ this.getFiles( parseInt( this.settingsStore.get( 'file-sort' )) ).map( fls => fls.render() ) }
 
 			</div>
-		`
+		)
 	}
 }

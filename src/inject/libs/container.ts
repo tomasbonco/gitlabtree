@@ -117,6 +117,12 @@ export class Container
 
 		return instance;
 	}
+
+
+	destruct()
+	{
+		this.instances.forEach( instance => instance.teardown ? instance.teardown() : undefined )
+	}
 }
 
 export function inject( ...dependecies: any[] ): ( target: any ) => void

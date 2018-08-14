@@ -1,9 +1,16 @@
 {
+  "scripts": {
+    "watch": "parcel src/inject/index.ts src/inject/style.styl --no-hmr --no-source-maps --no-autoinstall",
+    "build": "parcel build src/inject/index.ts src/inject/style.styl --no-source-maps"
+  },
   "devDependencies": {
     "parcel-plugin-typescript": "^1.0.0",
+    "stylus": "^0.54.5",
     "typescript": "^2.9.2"
   },
   "dependencies": {
-    "reflect-metadata": "^0.1.12"
+    "parcel-bundler": "^1.9.7",
+    "reflect-metadata": "^0.1.12",
+    "superfine": "^6.0.1"
   }
 }

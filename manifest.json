@@ -18,7 +18,8 @@
     }
   },
   "permissions": [
-    "activeTab"
+    "activeTab",
+    "storage"
   ],
   "content_scripts": [
     {
@@ -29,7 +30,7 @@
         "dist/index.js"
       ],
       "css": [
-        "css/style.css"
+        "dist/style.css"
       ]
     }
   ]

@@ -1,6 +1,49 @@
-import { Container } from './container';
+import { Container } from './libs/container';
 import { GitLabTree } from './inject';
 import { CSS_PREFIX } from './constants'
+import { SettingsStore } from './settings.store';
+
+let container: Container = new Container();
+let interval: number;
+
+/**
+ * This is for fake AJAX re-renders of the page.
+ */
+function checkSiteChange(): void
+{
+	let files: Element = document.querySelector( '.files' );
+
+	if ( files && ! files.classList.contains( CSS_PREFIX ) )
+	{
+		container.destruct();
+
+		container = getInstance();
+		startCheckInterval( 3000 )
+	}
+}
+
+function startCheckInterval( time: number ): void
+{
+	clearInterval(  interval )
+	interval = setInterval( () => checkSiteChange(), time );
+}
+
+
+function getInstance( callback = () => {} )
+{
+	const container: Container = new Container();
+	const settingsStore = container.get( SettingsStore );
+
+	// Let's get settings first, so then we can query them synchronously
+	settingsStore.onceReady.then( () =>
+	{
+		container.get( GitLabTree ); // this creates a new instance of GitlabTree on container
+		callback();
+	})
+
+	return container;
+}
+
 
 ( () =>
 {
@@ -11,35 +54,6 @@ import { CSS_PREFIX } from './constants'
 	{
 		return;
 	}
-	
 
-	const container: Container = new Container();
-	let instance: GitLabTree = container.get( GitLabTree );
-	let interval: number;
-
-
-	/**
-	 * This is for fake AJAX re-renders of the page.
-	 */
-	function checkSiteChange(): void
-	{
-		let files: Element = document.querySelector( '.files' );
-
-		if ( files && ! files.classList.contains( CSS_PREFIX ) )
-		{
-			instance.teardown();
-			container.drop( GitLabTree );
-
-			instance = container.get( GitLabTree );
-			startCheckInterval( 3000 )
-		}
-	}
-
-	function startCheckInterval( time: number ): void
-	{
-		clearInterval(  interval )
-		interval = setInterval( () => checkSiteChange(), time );
-	}
-
-	startCheckInterval( 150 )
+	container = getInstance( () => startCheckInterval( 150 ) )
 })()

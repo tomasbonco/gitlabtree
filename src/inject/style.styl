@@ -1,0 +1,335 @@
+.gitlab-tree-plugin-wrapper
+{
+	display: flex;
+}
+
+.gitlab-tree-plugin-hidden
+{
+	display: none !important;
+}
+
+.gitlab-tree-plugin-left
+{
+	flex: 0 0 250px;
+	border: 1px solid #e5e5e5;
+	border-radius: 4px;
+	margin-bottom: 16px;
+	margin-right: 15px;
+	overflow: auto;
+
+	.gitlab-tree-plugin-folder
+	{
+		padding-left: 20px;
+		margin-bottom: 10px;
+
+		.gitlab-tree-plugin-holder
+		{
+			white-space: nowrap;
+			text-overflow: ellipsis;
+			overflow: hidden;
+
+			&:before
+			{
+				font: normal normal normal 14px/1 FontAwesome;
+				content: "\f115";
+				padding-right: 7px;
+			}
+		}
+	}
+
+	& > .gitlab-tree-plugin-folder
+	{
+		padding-left: 0px;
+	}
+
+	& > .gitlab-tree-plugin-folder > .gitlab-tree-plugin-folder
+	{
+		padding-left: 15px;
+	}
+
+	& > .gitlab-tree-plugin-folder > .gitlab-tree-plugin-holder
+	{
+		background-color: #fafafa;
+		border-bottom: 1px solid #e5e5e5;
+		margin: 0;
+		text-align: left;
+		padding: 10px 16px;
+		word-wrap: break-word;
+		font-weight: bold;
+
+		margin-bottom: 15px;
+	}
+
+	& > .gitlab-tree-plugin-folder > .gitlab-tree-plugin-holder:before
+	{
+		content: "\f07c";
+	}
+
+
+	.gitlab-tree-plugin-folder.gitlab-tree-plugin-folder-collapsed > .gitlab-tree-plugin-holder:before
+	{
+		content: "\f114";
+	}
+
+	.gitlab-tree-plugin-folder.gitlab-tree-plugin-folder-collapsed > .gitlab-tree-plugin-folder
+	{
+		display: none;
+	}
+
+	.gitlab-tree-plugin-folder.gitlab-tree-plugin-folder-collapsed > a
+	{
+		display: none;
+	}
+
+	.file
+	{
+		padding-left: 20px;
+	}
+
+	a
+	{
+		display: block;
+	}
+
+
+	.gitlab-tree-plugin__menu
+	{
+		border-top: 1px solid #e5e5e5;
+		background: #fafafa;
+		
+		display: flex;
+		justify-content: flex-end;
+
+		&__item
+		{
+			display: flex;
+			justify-content: center;
+			align-items: center;
+
+			font-size: 18px;
+			width: 32px;
+			height: 32px;
+
+			color: rgba( 0, 0, 0, 0.5)
+
+			&:hover
+			{
+				background: rgba(0, 0, 0, 0.1);
+				color: rgba( 0, 0, 0, 0.7)
+				cursor: pointer;
+			}
+
+
+			&.gitlab-tree-plugin__toggle-hide
+			{
+				border-left: 1px solid #e5e5e5;
+			}
+		}
+	}
+
+
+	&.gitlab-tree-plugin__collapsed
+	{
+		flex-basis: 40px !important;
+		overflow: hidden;
+
+		.gitlab-tree-plugin__toggle-hide
+		{
+			width: 100%;
+			border: 0;
+		}
+	}
+}
+
+.gitlab-tree-plugin-right
+{
+	flex: 1;
+}
+
+.gitlab-tree-plugin-file-renamed, .gitlab-tree-plugin-file-renamed:hover
+{
+	color: #d90;
+}
+
+.gitlab-tree-plugin-file-deleted, .gitlab-tree-plugin-file-deleted:hover
+{
+	color: #d12f19;
+}
+
+.gitlab-tree-plugin-file-added, .gitlab-tree-plugin-file-added:hover
+{
+	color: #4a2;
+}
+
+.gitlab-tree-plugin-file-active
+{
+	color: #000;
+	font-weight: bold;
+	pointer-events: none;
+}
+
+.gitlab-tree-plugin-file-commented-icon
+{
+	margin-right: 7px;
+}
+
+.gitlab-tree-tabs-wrapper
+{
+	top: 40px;
+	z-index: 200;
+	position: sticky;
+}
+
+.diff-files-changed
+{
+	position: inherit !important;
+}
+
+
+.gitlab-tree-plugin__settings
+{
+	position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 999;
+
+	display: flex
+	align-items: center;
+	justify-content: center;
+
+	&__fg
+	{
+		width: 450px;
+		height: 350px;
+		background: white;
+		border-radius: 7px;
+		padding: 20px;
+	}
+
+	.gitlab-tree-plugin__setting
+	{
+		margin-bottom: 10px;
+		padding: 15px 15px 10px 15px;
+		background: #f9f9f9;
+
+		display: flex;
+
+		
+		label
+		{
+			flex: 1;
+			font-size: 13px;
+			font-weight: bold;
+		}
+
+		.gitlab-tree-plugin__e__toggle
+		{
+			flex-basis: 70px;
+		}
+
+
+		select
+		{
+			border: 1px solid #dfdfdf;
+		}
+	}
+
+	.gitlab-tree-plugin__settings__footer
+	{
+		margin-top: 80px;
+
+		&__save
+		{
+			width: 100px;
+		}
+	}
+}
+
+
+
+
+// Toggle switch
+
+.gitlab-tree-plugin__e__toggle
+{
+	input
+	{
+		max-height: 0;
+		max-width: 0;
+		opacity: 0;	
+
+		& + label
+		{
+			display: inline-block;
+			position: relative;
+			box-shadow: inset 0 0 0px 1px #d5d5d5;
+			text-indent: -5000px;
+			height: 20px;
+			width: 40px;
+			border-radius: 20px;
+			background: #fff;
+			cursor: pointer;
+
+			&:before
+			{
+				content: "";
+				position: absolute;
+				display: block;
+				height: 20px;
+				width: 20px;
+				top: 0;
+				left: 0;
+				border-radius: 20px;
+				background: rgba(19,191,17,0);
+				-moz-transition: .25s ease-in-out;
+				-webkit-transition: .25s ease-in-out;
+				transition: .25s ease-in-out;
+			}
+
+			&:after
+			{
+				content: "";
+				position: absolute;
+				display: block;
+				height: 20px;
+				width: 20px;
+				top: 0;
+				left: 0px;
+				border-radius: 20px;
+				background: white;
+				box-shadow: inset 0 0 0 1px rgba(0,0,0,.2), 0 2px 4px rgba(0,0,0,.2);
+				-moz-transition: .25s ease-in-out;
+				-webkit-transition: .25s ease-in-out;
+				transition: .25s ease-in-out;
+			}
+		}
+
+		&:checked + label
+		{
+			&:before
+			{
+				width: 30px;
+				background: rgba(19,191,17,1);
+			}
+
+			&:after
+			{
+				left: 20px;
+				box-shadow: inset 0 0 0 1px rgba(19,191,17,1), 0 2px 4px rgba(0,0,0,.2);
+			}
+		}
+	}	
+}
+
+
+
+.gitlab-tree-plugin__e__micro-input
+{
+	border: 1px solid #dfdfdf;
+	width: 75px;
+	border-radius: 2px;
+	padding: 2px;
+}

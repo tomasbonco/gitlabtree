@@ -1,6 +1,8 @@
-import { autoinject } from './container';
-import { Metadata, IMetadata, EFileState } from './metadata';
+import { autoinject } from './libs/container';
+import { Metadata, IMetadata, EFileState } from './mining/metadata';
 import { CSS_PREFIX } from './constants';
+import { h } from 'superfine'
+import { Views } from './libs/views';
 
 export interface IFileProps
 {
@@ -18,11 +20,10 @@ export interface IFileProps
 @autoinject
 export class File
 {
-	id: string = 'gtp' + Math.random().toString(36).substr(2, 10);
 	state: IFileProps = {} as IFileProps;
 
 
-	constructor( private metadata: Metadata )
+	constructor( private metadata: Metadata, private views: Views )
 	{}
 
 
@@ -52,7 +53,7 @@ export class File
 		}
 
 		Object.assign( this.state, changes );
-		this.tryToRerender();
+		this.views.redrawView( 'navigation' );
 
 		return this;
 	}
@@ -70,24 +71,15 @@ export class File
 	}
 
 
-	tryToRerender(): void
+	render(): any
 	{
-		const element: HTMLElement = document.getElementById( this.id );
-
-		if ( element )
-		{
-			element.outerHTML = this.render();
-		}
-	}
-
-
-	render(): string
-	{
-		return `
-		<a id="${this.id}" href="${this.state.hash}" class="file gitlab-tree-plugin-file-${EFileState[this.state.type].toLocaleLowerCase()} ${ this.state.isActive ? CSS_PREFIX + '-file-active' : '' }">
-			${ this.state.isCommented ? `<i class="fa fa-comments-o ${CSS_PREFIX}-file-commented-icon"></i>` : ''}
-			<span> ${ this.state.fullName } </span>
-		</a>
-		`
+		const fileClass = `file gitlab-tree-plugin-file-${EFileState[this.state.type].toLocaleLowerCase()} ${ this.state.isActive ? CSS_PREFIX + '-file-active' : '' }`;
+		const iconClass = `fa fa-comments-o ${CSS_PREFIX}-file-commented-icon`;
+		return (
+			<a href={this.state.hash} class={ fileClass }>
+				{ this.state.isCommented ? <i class={iconClass}></i> : '' }
+				<span> { this.state.fullName } </span>
+			</a>
+		)
 	}
 }

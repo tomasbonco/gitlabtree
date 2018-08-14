@@ -1,9 +1,16 @@
-import { Metadata } from './metadata';
-import { autoinject, Container, Instance } from './container';
+import { Metadata } from './mining/metadata';
+import { autoinject, Container, Instance } from './libs/container';
 import { CSS_PREFIX } from './constants'
 import { Navigation } from './navigation';
-import { Structure } from './structure'
-import { File } from './File'
+import { Structure } from './mining/structure'
+import { File } from './file'
+import { Views } from './libs/views';
+import { Settings } from './settings';
+import { PubSub } from './libs/pubsub';
+import { SettingsStore } from './settings.store';
+
+declare const chrome, browser;
+
 
 @autoinject
 export class GitLabTree
@@ -14,19 +21,24 @@ export class GitLabTree
 	strippedFileNames: string[];
 
 	wrapperElement: HTMLDivElement = document.createElement( 'div' );
+	settingsElement: HTMLDivElement = document.createElement( 'div' );
 	leftElement: HTMLDivElement = document.createElement( 'div' );
 	rightElement: HTMLDivElement = document.createElement( 'div' );
 	
 	lastActive: string = '';
+	storage = (chrome || browser).storage.local
 
 	hashChangeListener: () => void;
 	expandListener: ( e: MouseEvent ) => void;
 
 
-	constructor( private container: Container )
+	constructor( private container: Container, private views: Views, private pubsub: PubSub, private settingStore: SettingsStore )
 	{
 		this.init();
-		
+
+		this.pubsub.subscribe( 'settings-changed', this.settingsChanged.bind( this ) )
+		this.pubsub.subscribe( 'toggle-navigation', ( action, isOpen ) => this.toggleNavigation( isOpen ) )
+
 
 		// Detection if we have any files to generate tree from
 
@@ -52,8 +64,14 @@ export class GitLabTree
 
 		// Analyze filenames
 
+		const structure: Structure = container.get( Structure );
+
 		const navigation: Navigation = container.get( Navigation )
-		this.leftElement.innerHTML = navigation.render();
+		this.views.applyView( 'navigation', () => navigation.render(), this.leftElement );
+
+		const settings: Settings = container.get( Settings )
+		this.views.applyView( 'settings', () => settings.render(), this.settingsElement )
+
 
 		// Hide files
 		this.copyAndHideFiles( files );
@@ -66,16 +84,15 @@ export class GitLabTree
 		this.makeChangesTabWider();
 
 
+		// Apply settings
+		
+		this.settingsChanged( 'internal', this.settingStore.getAll() )
+
+
 		// Show file based on hash id
 
 		const currentFileHash: string = location.hash;
 		this.showFile( currentFileHash );
-
-
-		// Add expanding feature
-
-		this.expandListener = ( e: MouseEvent ) => (e.target as HTMLElement).classList.contains( 'holder' ) ? this.toggleExpand( e ) : undefined;
-		document.addEventListener( 'click', this.expandListener );
 
 
 		// Add listener for changes
@@ -102,10 +119,30 @@ export class GitLabTree
 	{
 		this.wrapperElement.appendChild( this.leftElement );
 		this.wrapperElement.appendChild( this.rightElement );
+		document.body.appendChild( this.settingsElement );
 
 		this.wrapperElement.classList.add( CSS_PREFIX + '-wrapper' );
 		this.leftElement.classList.add( CSS_PREFIX + '-left' );
 		this.rightElement.classList.add( CSS_PREFIX + '-right' );
+		this.settingsElement.classList.add( CSS_PREFIX + '-settings' );
+	}
+
+
+	settingsChanged( action: string, data: any ): void
+	{
+		this.leftElement.style.flexBasis = data['panel-width'] + 'px';
+	}
+
+
+	toggleNavigation( isOpen: boolean )
+	{
+		const className = 'gitlab-tree-plugin__collapsed';
+		this.leftElement.classList.remove( className )
+
+		if ( ! isOpen )
+		{
+			this.leftElement.classList.add( className )
+		}
 	}
 
 
@@ -202,25 +239,6 @@ export class GitLabTree
 
 
 	/**
-	 * Expands or collapses folder after click.
-	 * 
-	 * @param {MouseEvent} event - click event on .holder element
-	 */
-	toggleExpand( event: MouseEvent ): void
-	{
-		const folder: HTMLElement = (event.target as HTMLElement).parentElement;
-		const isExpanded: boolean = folder.classList.contains( CSS_PREFIX + '-folder-expanded' );
-		const isMainFolder: boolean = document.querySelector( `.${CSS_PREFIX}-left > .folder` ) === folder;
-
-		if ( ! isMainFolder )
-		{
-			folder.classList.remove( CSS_PREFIX + '-folder-collapsed', CSS_PREFIX + '-folder-expanded' );
-			folder.classList.add( CSS_PREFIX + ( isExpanded ? '-folder-collapsed' : '-folder-expanded' ));
-		}
-	}
-
-
-	/**
 	 * Callback called after hash has changed. It searches for "diff-[FILE ID]"" in hash,
 	 * and displays corresponding file (based on id). 
 	 */
@@ -259,10 +277,12 @@ export class GitLabTree
 		this.lastActive = hash;
 	}
 
+
 	getFileHolderByHash( hash: string ): HTMLElement
 	{
 		return this.rightElement.querySelector( `[id='${ hash.substr(1) }']` ) as HTMLElement;
 	}
+	
 
 	getFileLinkByHash( hash: string ): File
 	{
