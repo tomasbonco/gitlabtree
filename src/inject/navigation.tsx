@@ -15,6 +15,8 @@ export class Navigation
 	{
 		this.lastSort = this.settingsStore.get( 'file-sort' );
 
+		this.settingsChanged();
+
 		this.pubsub.subscribe( 'settings-changed', () => this.settingsChanged() );
 	}
 
@@ -28,6 +30,11 @@ export class Navigation
 			this.views.redrawView( 'navigation' );
 			this.lastSort = sort;
 		}
+
+		if ( this.settingsStore.get( 'single-change' ) && this.structure.flatFileStructure.length < 2 )
+		{
+			this.toggleHideNavigation( false );
+		}
 	}
 
 
@@ -37,11 +44,27 @@ export class Navigation
 	}
 
 
-	toggleHideNavigation()
+	toggleHideNavigation( display?: boolean )
 	{
-		this.isNavigationOpened = ! this.isNavigationOpened;
+		if ( display === undefined )
+		{
+			this.isNavigationOpened = ! this.isNavigationOpened;
+		}
+
+		else
+		{
+			this.isNavigationOpened = display;
+		}
+
 		this.pubsub.publish( 'toggle-navigation', this.isNavigationOpened );
 		this.views.redrawView( 'navigation' );
+	}
+
+
+	toggleExtensionIsOn()
+	{
+		console.log( 'toggle me baby' )
+		this.pubsub.publish( 'toggle-extension-is-on' );
 	}
 
 
@@ -50,23 +73,27 @@ export class Navigation
 		return (
 			<div>
 				
-				{ this.structure.entryPoint.render() }
+				<div class="gitlab-tree-plugin__files">
+
+					{ this.structure.entryPoint.render() }
+					
+				</div>
 
 				<div class="gitlab-tree-plugin__menu">
 
-					<div class={`gitlab-tree-plugin__menu__item ${ this.isNavigationOpened ? '' : 'gitlab-tree-plugin-hidden' }`} title="Turn extension off">
+					<div class={`gitlab-tree-plugin__menu__item ${ this.isNavigationOpened ? '' : 'gitlab-tree-plugin--is-hidden' }`} title="Turn extension off" onclick={ () => this.toggleExtensionIsOn() }>
 						
 						<i class="fa fa-power-off"></i>
 
 					</div>
 
-					<div class={`gitlab-tree-plugin__menu__item ${ this.isNavigationOpened ? '' : 'gitlab-tree-plugin-hidden' }`} title="Settings" onclick={ () => this.openSettings() }>
+					<div class={`gitlab-tree-plugin__menu__item ${ this.isNavigationOpened ? '' : 'gitlab-tree-plugin--is-hidden' }`} title="Settings" onclick={ () => this.openSettings() }>
 					
 						<i class="fa fa-cog"></i>
 
 					</div>
 
-					<div class="gitlab-tree-plugin__menu__item gitlab-tree-plugin__toggle-hide" onclick={ () => this.toggleHideNavigation() } title="Collapse file browser">
+					<div class="gitlab-tree-plugin__menu__item" id="gitlab-tree-plugin__toggle-hide" onclick={ () => this.toggleHideNavigation() } title="Collapse file browser">
 					
 						<i class={`fa fa-angle-double-${ this.isNavigationOpened ? 'left' : 'right' }`}></i>
 

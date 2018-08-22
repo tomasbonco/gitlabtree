@@ -15,6 +15,8 @@ declare const chrome, browser;
 @autoinject
 export class GitLabTree
 {
+	isOn: boolean = true; // are all files displayed (false) or single selected (true)?
+
 	pathPrefix: string;
 	fileHolders: NodeList;
 	fileNames: string[];
@@ -36,8 +38,9 @@ export class GitLabTree
 	{
 		this.init();
 
-		this.pubsub.subscribe( 'settings-changed', this.settingsChanged.bind( this ) )
+		this.pubsub.subscribe( 'settings-changed', (action, data ) => this.settingsChanged(action, data) )
 		this.pubsub.subscribe( 'toggle-navigation', ( action, isOpen ) => this.toggleNavigation( isOpen ) )
+		this.pubsub.subscribe( 'toggle-extension-is-on', () => this.toggleExtensionIsOn() );
 
 
 		// Detection if we have any files to generate tree from
@@ -86,7 +89,7 @@ export class GitLabTree
 
 		// Apply settings
 		
-		this.settingsChanged( 'internal', this.settingStore.getAll() )
+		this.settingsChanged( 'internal', this.settingStore.getAll() );
 
 
 		// Show file based on hash id
@@ -122,13 +125,13 @@ export class GitLabTree
 		document.body.appendChild( this.settingsElement );
 
 		this.wrapperElement.classList.add( CSS_PREFIX + '-wrapper' );
-		this.leftElement.classList.add( CSS_PREFIX + '-left' );
-		this.rightElement.classList.add( CSS_PREFIX + '-right' );
+		this.leftElement.classList.add( CSS_PREFIX + '__left' );
+		this.rightElement.classList.add( CSS_PREFIX + '__right' );
 		this.settingsElement.classList.add( CSS_PREFIX + '-settings' );
 	}
 
 
-	settingsChanged( action: string, data: any ): void
+	settingsChanged( action?: string, data?: any ): void
 	{
 		this.leftElement.style.flexBasis = data['panel-width'] + 'px';
 	}
@@ -136,7 +139,7 @@ export class GitLabTree
 
 	toggleNavigation( isOpen: boolean )
 	{
-		const className = 'gitlab-tree-plugin__collapsed';
+		const className = 'gitlab-tree-plugin__left--is-collapsed';
 		this.leftElement.classList.remove( className )
 
 		if ( ! isOpen )
@@ -160,7 +163,7 @@ export class GitLabTree
 			files.removeChild( fileHolder );
 			this.rightElement.appendChild( fileHolder );
 
-			fileHolder.classList.add( CSS_PREFIX + '-hidden' );
+			fileHolder.classList.add( CSS_PREFIX + '--is-hidden', CSS_PREFIX + '__file-holder' );
 		}
 	}
 
@@ -248,6 +251,32 @@ export class GitLabTree
 		this.showFile( newHash );
 	}
 
+	
+	turnExtensionOff()
+	{
+		this.isOn = false;
+		const fileHolders = this.rightElement.querySelectorAll( `.${CSS_PREFIX}--is-hidden` );
+		console.log( fileHolders );
+		fileHolders.forEach( file => file.classList.remove( `${CSS_PREFIX}--is-hidden` ) )
+	}
+
+
+	turnExtensionOn()
+	{
+		this.isOn = true;
+		const fileHolders = this.rightElement.querySelectorAll( `.${CSS_PREFIX}__file-holder` );
+		fileHolders.forEach( file => file.classList.add( `${CSS_PREFIX}--is-hidden` ) )
+
+		this.showFile( this.lastActive );
+	}
+
+
+	toggleExtensionIsOn()
+	{
+		console.log('yah yah', this.isOn)
+		return this.isOn ? this.turnExtensionOff() : this.turnExtensionOn();
+	}
+
 
 	/**
 	 * Shows file based on id.
@@ -265,13 +294,13 @@ export class GitLabTree
 
 		if ( this.lastActive )
 		{
-			this.getFileHolderByHash( this.lastActive ).classList.add( CSS_PREFIX + '-hidden' );
+			this.getFileHolderByHash( this.lastActive ).classList.add( CSS_PREFIX + '--is-hidden' );
 			this.getFileLinkByHash( this.lastActive ).setInactive();
 		}
 		
 		hash = metadata.getAll().filter( m => m.hash === hash ).length > 0 ? hash : metadata.getAll()[0].hash; // if hash is invalid use default hash
 
-		this.getFileHolderByHash( hash ).classList.remove( CSS_PREFIX + '-hidden' );
+		this.getFileHolderByHash( hash ).classList.remove( CSS_PREFIX + '--is-hidden' );
 		this.getFileLinkByHash( hash ).setActive();
 
 		this.lastActive = hash;

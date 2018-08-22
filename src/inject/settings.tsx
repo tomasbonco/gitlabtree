@@ -86,7 +86,7 @@ export class Settings
 		const fileSort = parseInt( this.state['file-sort'] );
 
 		return (
-			<div class={`gitlab-tree-plugin__settings ${ this.state.isDisplayed ? '' : 'gitlab-tree-plugin-hidden' }`} onclick={e => (e.target as HTMLElement ).classList.contains( 'gitlab-tree-plugin__settings' ) ? this.hide() : undefined }>
+			<div class={`gitlab-tree-plugin__settings ${ this.state.isDisplayed ? '' : 'gitlab-tree-plugin--is-hidden' }`} onclick={e => (e.target as HTMLElement ).classList.contains( 'gitlab-tree-plugin__settings' ) ? this.hide() : undefined }>
 			
 				<div class="gitlab-tree-plugin__settings__fg">
 

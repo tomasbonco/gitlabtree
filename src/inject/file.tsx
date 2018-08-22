@@ -73,8 +73,9 @@ export class File
 
 	render(): any
 	{
-		const fileClass = `file gitlab-tree-plugin-file-${EFileState[this.state.type].toLocaleLowerCase()} ${ this.state.isActive ? CSS_PREFIX + '-file-active' : '' }`;
-		const iconClass = `fa fa-comments-o ${CSS_PREFIX}-file-commented-icon`;
+		const fileClass = `gitlab-tree-plugin__file gitlab-tree-plugin__file--is-${EFileState[this.state.type].toLocaleLowerCase()} ${ this.state.isActive ? CSS_PREFIX + '__file--is-active' : '' } ${this.state.isCommented ? CSS_PREFIX + '__file--is-commented' : ''}`;
+		const iconClass = `fa fa-comments-o ${CSS_PREFIX}__file__commented-icon`;
+
 		return (
 			<a href={this.state.hash} class={ fileClass }>
 				{ this.state.isCommented ? <i class={iconClass}></i> : '' }

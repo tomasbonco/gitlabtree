@@ -1,99 +1,185 @@
 .gitlab-tree-plugin-wrapper
 {
 	display: flex;
+	align-items: flex-start;
 }
 
-.gitlab-tree-plugin-hidden
+.gitlab-tree-plugin--is-hidden
 {
 	display: none !important;
 }
 
-.gitlab-tree-plugin-left
+.gitlab-tree-plugin__left
 {
+	/*
+		Left side consists of:
+		* files
+		* menu
+	*/
+
 	flex: 0 0 250px;
 	border: 1px solid #e5e5e5;
 	border-radius: 4px;
 	margin-bottom: 16px;
 	margin-right: 15px;
 	overflow: auto;
+	
+	transition: flex 0.15s ease-in;
 
-	.gitlab-tree-plugin-folder
+
+	/* Files */
+
+	.gitlab-tree-plugin__files
 	{
-		padding-left: 20px;
-		margin-bottom: 10px;
+		overflow-x: auto;
+		transition: opacity 0.15s ease-in;
 
-		.gitlab-tree-plugin-holder
+
+		/* Folder */
+
+		.gitlab-tree-plugin__folder
 		{
-			white-space: nowrap;
-			text-overflow: ellipsis;
-			overflow: hidden;
+			/*
+				Folder can have:
+				* holder - where it's name is displayed
+				* another folders
+				* files
 
-			&:before
+				Folder can be:
+				* root
+				* collapsed
+				* expanded
+			*/
+			padding-left: 20px;
+			margin-bottom: 10px;
+
+
+			.gitlab-tree-plugin__holder
 			{
-				font: normal normal normal 14px/1 FontAwesome;
-				content: "\f115";
-				padding-right: 7px;
+				white-space: nowrap;
+				text-overflow: ellipsis;
+				overflow: hidden;
+				
+
+				&:before
+				{
+					font: normal normal normal 14px/1 FontAwesome;
+					content: "\f115";
+					padding-right: 7px;
+				}
+			}
+		
+
+			&--is-root
+			{
+				padding-left: 0px;
+			
+
+				> .gitlab-tree-plugin__holder
+				{
+					background-color: #fafafa;
+					border-bottom: 1px solid #e5e5e5;
+					margin: 0;
+					text-align: left;
+					padding: 10px 16px;
+					word-wrap: break-word;
+					font-weight: bold;
+
+					margin-bottom: 5px;
+				}
+
+				> .gitlab-tree-plugin__folder
+				{
+					padding-left: 15px;
+				}
+
+				> .gitlab-tree-plugin__holder:before
+				{
+					content: "\f07c";
+				}
+			}
+
+
+			&--is-collapsed
+			{
+				> .gitlab-tree-plugin__holder:before
+				{
+					content: "\f114";
+				}
+
+				> .gitlab-tree-plugin__folder
+				{
+					display: none;
+				}
+
+				> .gitlab-tree-plugin__file
+				{
+					display: none;
+				}
+			}
+		}
+
+
+		/* File */
+
+		.gitlab-tree-plugin__file
+		{
+			/*
+				File can be:
+				* added
+				* removed (some GitLab versions do not support this)
+				* updated
+				* deleted
+				* commented
+
+				File can have: 
+				* icon (currently commented)
+				* name
+			*/
+
+			padding-left: 20px;
+			display: block;
+
+			
+			&--is-renamed, &--is-renamed:hover
+			{
+				color: #d90;
+			}
+
+			&--is-deleted, &--is-deleted:hover
+			{
+				color: #d12f19;
+			}
+
+			&--is-added, &--is-added:hover
+			{
+				color: #4a2;
+			}
+
+			&--is-active
+			{
+				color: #000;
+				font-weight: bold;
+				pointer-events: none;
+			}
+
+			&__commented-icon
+			{
+				margin-right: 7px;
 			}
 		}
 	}
 
-	& > .gitlab-tree-plugin-folder
-	{
-		padding-left: 0px;
-	}
 
-	& > .gitlab-tree-plugin-folder > .gitlab-tree-plugin-folder
-	{
-		padding-left: 15px;
-	}
-
-	& > .gitlab-tree-plugin-folder > .gitlab-tree-plugin-holder
-	{
-		background-color: #fafafa;
-		border-bottom: 1px solid #e5e5e5;
-		margin: 0;
-		text-align: left;
-		padding: 10px 16px;
-		word-wrap: break-word;
-		font-weight: bold;
-
-		margin-bottom: 15px;
-	}
-
-	& > .gitlab-tree-plugin-folder > .gitlab-tree-plugin-holder:before
-	{
-		content: "\f07c";
-	}
-
-
-	.gitlab-tree-plugin-folder.gitlab-tree-plugin-folder-collapsed > .gitlab-tree-plugin-holder:before
-	{
-		content: "\f114";
-	}
-
-	.gitlab-tree-plugin-folder.gitlab-tree-plugin-folder-collapsed > .gitlab-tree-plugin-folder
-	{
-		display: none;
-	}
-
-	.gitlab-tree-plugin-folder.gitlab-tree-plugin-folder-collapsed > a
-	{
-		display: none;
-	}
-
-	.file
-	{
-		padding-left: 20px;
-	}
-
-	a
-	{
-		display: block;
-	}
-
+	/* Menu */
 
 	.gitlab-tree-plugin__menu
 	{
+		/*
+			Menu can have:
+			* items
+		*/
+
 		border-top: 1px solid #e5e5e5;
 		background: #fafafa;
 		
@@ -120,7 +206,7 @@
 			}
 
 
-			&.gitlab-tree-plugin__toggle-hide
+			#gitlab-tree-plugin__toggle-hide
 			{
 				border-left: 1px solid #e5e5e5;
 			}
@@ -128,12 +214,20 @@
 	}
 
 
-	&.gitlab-tree-plugin__collapsed
+	&--is-collapsed
 	{
 		flex-basis: 40px !important;
 		overflow: hidden;
 
-		.gitlab-tree-plugin__toggle-hide
+
+		.gitlab-tree-plugin__files
+		{
+			overflow: hidden;
+			opacity: 0.25;
+			pointer-events: none;
+		}
+
+		#gitlab-tree-plugin__toggle-hide
 		{
 			width: 100%;
 			border: 0;
@@ -141,37 +235,12 @@
 	}
 }
 
-.gitlab-tree-plugin-right
+
+.gitlab-tree-plugin__right
 {
 	flex: 1;
 }
 
-.gitlab-tree-plugin-file-renamed, .gitlab-tree-plugin-file-renamed:hover
-{
-	color: #d90;
-}
-
-.gitlab-tree-plugin-file-deleted, .gitlab-tree-plugin-file-deleted:hover
-{
-	color: #d12f19;
-}
-
-.gitlab-tree-plugin-file-added, .gitlab-tree-plugin-file-added:hover
-{
-	color: #4a2;
-}
-
-.gitlab-tree-plugin-file-active
-{
-	color: #000;
-	font-weight: bold;
-	pointer-events: none;
-}
-
-.gitlab-tree-plugin-file-commented-icon
-{
-	margin-right: 7px;
-}
 
 .gitlab-tree-tabs-wrapper
 {
@@ -185,6 +254,11 @@
 	position: inherit !important;
 }
 
+
+
+/*
+	Settings' modal window styling.
+*/
 
 .gitlab-tree-plugin__settings
 {
