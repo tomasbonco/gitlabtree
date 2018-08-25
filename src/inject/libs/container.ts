@@ -1,5 +1,14 @@
 import 'reflect-metadata';
 
+/**
+ * This is container manager inspirated by Aurelia's one. Will be published on npm and GitHub as solo soon.
+ * It works like a context, where all instances are registred as singletons. Then it resolves dependecies
+ * and passes singletons to constructor.
+ * 
+ * If you want to use it, just use @autoinject decorator on the class and inside constructor specify what
+ * dependencies you want to use.
+ */
+
 export class Container
 {
 	static instance: Container = undefined;

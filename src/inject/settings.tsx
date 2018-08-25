@@ -44,7 +44,7 @@ export class Settings
 	}
 
 
-	save()
+	onSave()
 	{
 		const newSettings =
 		{
@@ -58,15 +58,15 @@ export class Settings
 	}
 
 
-	valueChanged( field: string, value: string|boolean )
+	onValueChanged( field: string, value: string|boolean )
 	{
-		if ( field === 'single-change' && ! [ true, false ].includes( value as boolean ))
+		if ( field === 'single-change' && [ true, false ].indexOf( value as boolean ) === -1 )
 		{
 			return;
 		}
 
 
-		if ( field === 'file-sort' && ! [ '0', '1', '2', '3' ].includes( value as string ))
+		if ( field === 'file-sort' && [ '0', '1', '2', '3' ].indexOf( value as string ) === -1 )
 		{
 			return;
 		}
@@ -96,7 +96,7 @@ export class Settings
 
 						<div class="gitlab-tree-plugin__e__toggle">
 
-							<input type="checkbox" id="checkbox-single-change" onchange={ e => this.valueChanged( 'single-change', e.target.checked ) } checked={this.state['single-change']} />
+							<input type="checkbox" id="checkbox-single-change" onchange={ e => this.onValueChanged( 'single-change', e.target.checked ) } checked={this.state['single-change']} />
 							<label for="checkbox-single-change"></label>
 
 						</div>
@@ -106,7 +106,7 @@ export class Settings
 					<div class="gitlab-tree-plugin__setting">
 				
 						<label> Sort files by </label>
-						<select onchange={ e => this.valueChanged( 'file-sort', e.target.value ) }>
+						<select onchange={ e => this.onValueChanged( 'file-sort', e.target.value ) }>
 							<option value={EFileSort.AZName} selected={fileSort === EFileSort.AZName}> Name A~>Z</option>
 							<option value={EFileSort.ZAName} selected={fileSort === EFileSort.ZAName}> Name Z~>A</option>
 							<option value={EFileSort.AZExt} selected={fileSort === EFileSort.AZExt}> Extension A~>Z</option>
@@ -120,7 +120,7 @@ export class Settings
 						<label> Panel width </label>
 
 						<div>
-							<input type="number" class="gitlab-tree-plugin__e__micro-input" value={this.state['panel-width']} onchange={ e => this.valueChanged( 'panel-width', e.target.value ) } /> px
+							<input type="number" class="gitlab-tree-plugin__e__micro-input" value={this.state['panel-width']} onchange={ e => this.onValueChanged( 'panel-width', e.target.value ) } /> px
 						</div>
 
 					</div>
@@ -128,7 +128,7 @@ export class Settings
 
 					<div class="gitlab-tree-plugin__settings__footer">
 
-						<button class="btn btn-success pull-right gitlab-tree-plugin__settings__footer__save" onclick={() => this.save()}> Save </button>
+						<button class="btn btn-success pull-right gitlab-tree-plugin__settings__footer__save" onclick={() => this.onSave()}> Save </button>
 						<a class="btn btn-second" href="https://github.com/tomasbonco/gitlabtree/issues" target="__blank"> Send feedback </a>
 					
 					</div>

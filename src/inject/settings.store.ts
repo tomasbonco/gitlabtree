@@ -1,7 +1,16 @@
 import { PubSub } from "./libs/pubsub";
 import { autoinject } from "./libs/container";
+import { EVENT_SETTINGS_CHANGED } from "./constants";
 
 declare const chrome, browser;
+
+export interface ISettings
+{
+	'single-change': boolean;
+	'file-sort': number;
+	'panel-width': number;
+}
+
 
 @autoinject
 export class SettingsStore
@@ -10,14 +19,14 @@ export class SettingsStore
 
 	private storage = (chrome || browser).storage.local
 
-	private defaultValues =
+	private defaultValues: ISettings =
 	{
 		'single-change': true,
 		'file-sort': 2,
 		'panel-width': 250,
 	}
 	
-	private state = this.defaultValues;
+	private state: ISettings = this.defaultValues;
 
 
 	constructor( private pubsub: PubSub )
@@ -26,7 +35,7 @@ export class SettingsStore
 	}
 
 
-	private setState( newState )
+	private setState( newState: ISettings|any )
 	{
 		this.state = Object.assign( {}, this.state, newState )
 	}
@@ -78,7 +87,7 @@ export class SettingsStore
 	{
 		this.setState( settings )
 		this.storage.set( this.state )
-		this.pubsub.publish( 'settings-changed', Object.assign( {}, this.state ) );
+		this.pubsub.publish( EVENT_SETTINGS_CHANGED, Object.assign( {}, this.state ) );
 	}
 
 

@@ -4,14 +4,18 @@ export interface IMetadata
 {
 	type: EFileState; // 'renamed' | 'deleted' | 'edit' | 'new';
 	hash: string;
-	filename: string;
+	fileName: string;
 	commented: boolean;
 }
 
 
+/**
+ * Metadata contains information about specific file - whether it was added/updated or removed, was it commented and so on.
+ */
+
 export class Metadata
 {
-	metadata: IMetadata[];
+	metadata: IMetadata[]; // cache
 
 
 	constructor( private fileHolders: NodeList )
@@ -20,6 +24,9 @@ export class Metadata
 	}
 
 
+	/**
+	 * Returns metadata for every file.
+	 */
 	getAll(): IMetadata[]
 	{
 		if ( ! this.metadata )
@@ -39,7 +46,7 @@ export class Metadata
 	/**
 	 * Returns metadata by index.
 	 * 
-	 * @param {number} index - index
+	 * @param {number} index - index of file
 	 * @return {IMetadata} - metadata
 	 */
 	get( index: number ): IMetadata
@@ -93,7 +100,7 @@ export class Metadata
 			const svgElement: HTMLElement = rawFileMetadata.querySelector( 'svg.diff-file-changed-icon' ) as HTMLElement;
 			const typeRaw: string = svgElement.querySelector( 'use' ).getAttribute('xlink:href').split('#')[1];
 			const hash: string = rawFileMetadata.querySelector( 'a' ).getAttribute('href');
-			const filename: string = rawFileMetadata.querySelector( '.diff-changed-file' ).getAttribute('title');
+			const fileName: string = rawFileMetadata.querySelector( '.diff-changed-file' ).getAttribute('title');
 			const isCred: boolean = svgElement.classList.contains( 'cred' );
 			
 			let type: EFileState = EFileState.UPDATED;
@@ -108,7 +115,7 @@ export class Metadata
 
 			// Save
 
-			const fileMetadata: IMetadata = { type, hash, filename, commented: false };
+			const fileMetadata: IMetadata = { type, hash, fileName, commented: false };
 			metadata.push( fileMetadata );
 		}
 
@@ -128,15 +135,15 @@ export class Metadata
 		{
 			const classList: DOMTokenList = rawFileMetadata.querySelector( 'a i:first-child' ).classList;
 			const hash: string = rawFileMetadata.querySelector( 'a' ).getAttribute('href');
-			let filename: string = rawFileMetadata.querySelector( '.diff-file-changes-path' ).textContent.trim();
+			let fileName: string = rawFileMetadata.querySelector( '.diff-file-changes-path' ).textContent.trim();
 			let type: EFileState = EFileState.UPDATED;
 			
 
 			// When file renamed, show renamed file
 
-			if ( filename.indexOf('→') !== -1 )
+			if ( fileName.indexOf('→') !== -1 )
 			{
-				filename = filename.split( '→' )[1].trim();
+				fileName = fileName.split( '→' )[1].trim();
 			}
 
 
@@ -149,7 +156,7 @@ export class Metadata
 
 			// Save
 
-			const fileMetadata: IMetadata = { type, hash, filename, commented: false };
+			const fileMetadata: IMetadata = { type, hash, fileName, commented: false };
 			metadata.push( fileMetadata );
 		}
 
@@ -169,15 +176,15 @@ export class Metadata
 		{
 			const typeRaw: string[] = Array.prototype.slice.call( rawFileMetadata.querySelector(  'span:first-child' ).classList );
 			const hash: string = rawFileMetadata.querySelector( 'a' ).getAttribute('href');
-			let filename: string = rawFileMetadata.querySelector( 'a' ).textContent.trim();
+			let fileName: string = rawFileMetadata.querySelector( 'a' ).textContent.trim();
 			let type: EFileState = EFileState.UPDATED;
 			
 
 			// When file renamed, show renamed file
 
-			if ( filename.indexOf('→') !== -1 )
+			if ( fileName.indexOf('→') !== -1 )
 			{
-				filename = filename.split( '→' )[1].trim();
+				fileName = fileName.split( '→' )[1].trim();
 			}
 
 
@@ -190,7 +197,7 @@ export class Metadata
 
 			// Save
 
-			const fileMetadata: IMetadata = { type, hash, filename, commented: false };
+			const fileMetadata: IMetadata = { type, hash, fileName, commented: false };
 			metadata.push( fileMetadata );
 		}
 

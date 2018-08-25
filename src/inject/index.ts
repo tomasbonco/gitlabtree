@@ -1,10 +1,19 @@
 import { Container } from './libs/container';
-import { GitLabTree } from './inject';
+import { GitLabTree } from './main';
 import { CSS_PREFIX } from './constants'
 import { SettingsStore } from './settings.store';
 
 let container: Container = new Container();
 let interval: number;
+
+/*
+	!! IMPORTANT NOTE !!
+
+	This file performs a quick test, whether plugin should be applied.
+	Actual plugin entry point can be found in `main.ts` file.
+*/
+
+
 
 /**
  * This is for fake AJAX re-renders of the page.
@@ -24,7 +33,7 @@ function checkSiteChange(): void
 
 function startCheckInterval( time: number ): void
 {
-	clearInterval(  interval )
+	clearInterval( interval )
 	interval = setInterval( () => checkSiteChange(), time );
 }
 

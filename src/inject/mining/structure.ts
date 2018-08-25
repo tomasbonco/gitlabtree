@@ -13,7 +13,7 @@ export class Structure
 
 	constructor( private container: Container, private metadata: Metadata )
 	{
-		this.plainFileNames = this.metadata.getAll().map( m => m.filename );
+		this.plainFileNames = this.metadata.getAll().map( m => m.fileName );
 
 		const prefix: string = this.getPrefixPath( this.plainFileNames );
 		const fileNamesWithoutPrefix: string[] = this.removePathPrefix( this.plainFileNames, prefix );
