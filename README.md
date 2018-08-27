@@ -23,9 +23,19 @@ First you need [NodeJS](https://nodejs.org/en/) installed. Then you need to inst
 ```
 npm install typescript -g
 ```
-Now in Visual Studio Code you can run build task. If you prefer terminal:
+Now install all dependencies by:
 ```
-tsc -p tsconfig.json
+npm install
+```
+
+Or if you are using Yarn:
+```
+yarn install
+```
+
+And run a debug build:
+```
+npm run watch
 ```
 
 
