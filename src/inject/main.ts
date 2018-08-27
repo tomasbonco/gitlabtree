@@ -187,6 +187,9 @@ export class GitLabTree
 		this.getFileLinkByHash( hash ).setActive();
 
 		this.lastActive = hash;
+
+		var topOfDiff = document.getElementById('diff-notes-app').offsetTop;
+		window.scrollTo(0, topOfDiff);
 	}
 
 	
