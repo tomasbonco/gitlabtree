@@ -51,7 +51,7 @@ export class GitLabTree
 		
 		this.pubsub.subscribe( EVENT_SETTINGS_CHANGED, ( action, data ) => this.settingsChanged( action, data ))
 		this.pubsub.subscribe( EVENT_TOGGLE_NAVIGATION, ( action, isOpen ) => this.performNavigationIsOpen( isOpen ))
-		this.pubsub.subscribe( EVENT_TOGGLE_EXTENSION, () => this.toggleExtensionIsOn() );
+		this.pubsub.subscribe( EVENT_TOGGLE_EXTENSION, (action, isOn ) => this.toggleExtensionIsOn( isOn ) );
 
 
 		// Obtain metadata

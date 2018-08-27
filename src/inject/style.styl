@@ -54,12 +54,8 @@
 			margin-bottom: 10px;
 
 
-			.gitlab-tree-plugin__holder
-			{
-				white-space: nowrap;
-				text-overflow: ellipsis;
-				overflow: hidden;
-				
+			.gitlab-tree-plugin__folder__holder
+			{				
 
 				&:before
 				{
@@ -75,25 +71,44 @@
 				padding-left: 0px;
 			
 
-				> .gitlab-tree-plugin__holder
+				> .gitlab-tree-plugin__folder__holder
 				{
+					white-space: nowrap;
+					text-overflow: ellipsis;
+					overflow: hidden;
+
 					background-color: #fafafa;
 					border-bottom: 1px solid #e5e5e5;
 					margin: 0;
 					text-align: left;
 					padding: 10px 16px;
-					word-wrap: break-word;
 					font-weight: bold;
 
 					margin-bottom: 5px;
 				}
 
-				> .gitlab-tree-plugin__folder
+				> .gitlab-tree-plugin__folder__content 
 				{
-					padding-left: 15px;
+					overflow: auto;
+					padding-bottom: 5px;
+
+					.gitlab-tree-plugin__file
+					{
+						white-space: nowrap;
+					}
+
+					.gitlab-tree-plugin__folder__holder
+					{
+						white-space: nowrap;
+					}
+
+					> .gitlab-tree-plugin__folder
+					{
+						padding-left: 15px;
+					}
 				}
 
-				> .gitlab-tree-plugin__holder:before
+				> .gitlab-tree-plugin__folder__holder:before
 				{
 					content: "\f07c";
 				}
@@ -102,17 +117,12 @@
 
 			&--is-collapsed
 			{
-				> .gitlab-tree-plugin__holder:before
+				> .gitlab-tree-plugin__folder__holder:before
 				{
 					content: "\f114";
 				}
 
-				> .gitlab-tree-plugin__folder
-				{
-					display: none;
-				}
-
-				> .gitlab-tree-plugin__file
+				> .gitlab-tree-plugin__folder__content
 				{
 					display: none;
 				}
@@ -206,9 +216,17 @@
 			}
 
 
-			#gitlab-tree-plugin__toggle-hide
+			&#gitlab-tree-plugin__toggle-hide
 			{
 				border-left: 1px solid #e5e5e5;
+			}
+
+			&#gitlab-tree-plugin__toggle-on
+			{
+				&.gitlab-tree-plugin--is-off
+				{
+					background: rgba(220, 53, 69, 0.75);
+				}
 			}
 		}
 	}
@@ -225,6 +243,14 @@
 			overflow: hidden;
 			opacity: 0.25;
 			pointer-events: none;
+		}
+
+		.gitlab-tree-plugin__folder--is-root
+		{
+			> .gitlab-tree-plugin__folder__content
+			{
+				overflow: hidden !important;
+			}
 		}
 
 		#gitlab-tree-plugin__toggle-hide

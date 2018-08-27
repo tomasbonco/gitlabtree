@@ -11,6 +11,8 @@ export class Navigation
 {
 	private isNavigationOpened: boolean = true;
 	private lastSort;
+	private isExtensionOn: boolean = true;
+
 
 	constructor( private structure: Structure, private pubsub: PubSub, private views: Views, private settingsStore: SettingsStore )
 	{
@@ -63,6 +65,7 @@ export class Navigation
 	 */
 	onToggleNavigationIsOpen( isOpen?: boolean )
 	{
+		console.log('wut')
 		this.isNavigationOpened = isOpen !== undefined ? isOpen : ! this.isNavigationOpened
 	
 		this.pubsub.publish( EVENT_TOGGLE_NAVIGATION, this.isNavigationOpened ); // changes on top level are required
@@ -75,14 +78,30 @@ export class Navigation
 	 */
 	onToggleExtensionIsOn()
 	{
-		this.pubsub.publish( EVENT_TOGGLE_EXTENSION );
+		this.isExtensionOn = ! this.isExtensionOn
+		this.pubsub.publish( EVENT_TOGGLE_EXTENSION, this.isExtensionOn );
+		this.views.redrawView( 'navigation' );
+	}
+
+
+	/**
+	 * Once navigation is collapsed, pointer-events are turned off.
+	 * This callback is attached to top-level element that accepts pointer events.
+	 * So once click is registred, this should open expend navigation.
+	 */
+	onMaybeOpenNavigation( e: MouseEvent )
+	{
+		if ( (e.target as HTMLElement).classList.contains( 'gitlab-tree-plugin__navigation' ) && ! this.isNavigationOpened )
+		{
+			this.onToggleNavigationIsOpen();
+		}
 	}
 
 
 	render(): any
 	{
 		return (
-			<div>
+			<div class="gitlab-tree-plugin__navigation" onclick={(e) => this.onMaybeOpenNavigation( e )}>
 				
 				<div class="gitlab-tree-plugin__files">
 
@@ -92,7 +111,7 @@ export class Navigation
 
 				<div class="gitlab-tree-plugin__menu">
 
-					<div class={`gitlab-tree-plugin__menu__item ${ this.isNavigationOpened ? '' : 'gitlab-tree-plugin--is-hidden' }`} title="Turn extension off" onclick={ () => this.onToggleExtensionIsOn() }>
+					<div id="gitlab-tree-plugin__toggle-on" class={`gitlab-tree-plugin__menu__item ${ this.isNavigationOpened ? '' : 'gitlab-tree-plugin--is-hidden' } ${ this.isExtensionOn ? '' : 'gitlab-tree-plugin--is-off' }`} title={ this.isExtensionOn ? "Turn extension off" : "Turn extension on" } onclick={ () => this.onToggleExtensionIsOn() }>
 						
 						<i class="fa fa-power-off"></i>
 
