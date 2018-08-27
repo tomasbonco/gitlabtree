@@ -19,11 +19,7 @@ Star, if you like :) Open an issue, if you find a bug or you miss something. Sen
 
 ## How to build
 
-First you need [NodeJS](https://nodejs.org/en/) installed. Then you need to install Typescript via:
-```
-npm install typescript -g
-```
-Now install all dependencies by:
+First you need [NodeJS](https://nodejs.org/en/) installed. Then you can install all dependencies by:
 ```
 npm install
 ```
