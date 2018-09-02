@@ -183,13 +183,15 @@ export class GitLabTree
 		
 		hash = metadata.getAll().filter( m => m.hash === hash ).length > 0 ? hash : metadata.getAll()[0].hash; // if hash is invalid use default hash
 
-		this.getFileHolderByHash( hash ).classList.remove( CSS_PREFIX + '--is-hidden' );
+		const fileHolder = this.getFileHolderByHash( hash );
+		fileHolder.classList.remove( CSS_PREFIX + '--is-hidden' );
+
 		this.getFileLinkByHash( hash ).setActive();
 
 		this.lastActive = hash;
 
-		var topOfDiff = document.getElementById('diff-notes-app').offsetTop;
-		window.scrollTo(0, topOfDiff);
+		var topOfDiff = fileHolder.offsetTop;
+		window.scrollTo( 0, topOfDiff - 50 );
 	}
 
 	
