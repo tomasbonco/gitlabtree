@@ -216,10 +216,14 @@ export class Folder
 		return (
 			<div class={`${CSS_PREFIX}__folder ${ expandedClass } ${ this.state.isRoot ? CSS_PREFIX + '__folder--is-root' : '' }`}>
 			
-				<div class={CSS_PREFIX + '__holder'} title={this.state.name} onclick={ () => this.toggleIsFolderExpanded() }> {this.state.name} </div>
-				{ this.getFolders( parseInt( this.settingsStore.get( 'file-sort' )) ).map( fdr => fdr.render() ) }
-				{ this.getFiles( parseInt( this.settingsStore.get( 'file-sort' )) ).map( fls => fls.render() ) }
+				<div class={CSS_PREFIX + '__folder__holder'} title={this.state.name} onclick={ () => this.toggleIsFolderExpanded() }> {this.state.name} </div>
 
+				<div class={CSS_PREFIX + '__folder__content'}>
+
+					{ this.getFolders( parseInt( this.settingsStore.get( 'file-sort' )) ).map( fdr => fdr.render() ) }
+					{ this.getFiles( parseInt( this.settingsStore.get( 'file-sort' )) ).map( fls => fls.render() ) }
+					
+				</div>
 			</div>
 		)
 	}

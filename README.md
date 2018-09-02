@@ -19,13 +19,19 @@ Star, if you like :) Open an issue, if you find a bug or you miss something. Sen
 
 ## How to build
 
-First you need [NodeJS](https://nodejs.org/en/) installed. Then you need to install Typescript via:
+First you need [NodeJS](https://nodejs.org/en/) installed. Then you can install all dependencies by:
 ```
-npm install typescript -g
+npm install
 ```
-Now in Visual Studio Code you can run build task. If you prefer terminal:
+
+Or if you are using Yarn:
 ```
-tsc -p tsconfig.json
+yarn install
+```
+
+And run a debug build:
+```
+npm run watch
 ```
 
 
