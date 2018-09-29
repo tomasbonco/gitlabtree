@@ -9,9 +9,6 @@ import { Settings } from './settings';
 import { PubSub } from './libs/pubsub';
 import { SettingsStore, ISettings } from './settings.store';
 
-declare const chrome, browser;
-
-
 @autoinject
 export class GitLabTree
 {
@@ -28,7 +25,6 @@ export class GitLabTree
 	rightElement: HTMLDivElement = document.createElement( 'div' );
 	
 	lastActive: string = '';
-	storage = (chrome || browser).storage.local
 
 	hashChangeListener: () => void;
 	expandListener: ( e: MouseEvent ) => void;

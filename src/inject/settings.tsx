@@ -12,7 +12,6 @@ export enum EFileSort { AZName, ZAName, AZExt, ZAExt };
 export class Settings
 {
 	state = {} as any;
-	storage = (chrome || browser).storage.local
 
 	constructor( private views: Views, private pubsub: PubSub, private settingsStore: SettingsStore )
 	{

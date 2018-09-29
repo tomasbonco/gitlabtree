@@ -2,8 +2,6 @@ import { PubSub } from "./libs/pubsub";
 import { autoinject } from "./libs/container";
 import { EVENT_SETTINGS_CHANGED } from "./constants";
 
-declare const chrome, browser;
-
 export interface ISettings
 {
 	'single-change': boolean;
@@ -17,7 +15,7 @@ export class SettingsStore
 {
 	public onceReady; // constructor will assign a promise here
 
-	private storage = (chrome || browser).storage.local
+	private storage = localStorage;
 
 	private defaultValues: ISettings =
 	{
@@ -43,42 +41,16 @@ export class SettingsStore
 
 	pullSettings(): Promise<any>
 	{
-		return new Promise( ( resolve, reject ) =>
+		return new Promise( ( resolve ) =>
 		{			
-			const callback = values => 
-			{
-				// If we are running this for a first time, there might be
-				// some values undefined. So we try to merge these that are not
-				// undefined with a previous state (in a first time it's default values).
+			const result = Object.assign( {}, this.state )
 
-				const newState = Object.assign( {}, this.state );
-				
-				Object.keys( values ).forEach( key =>
-				{
-					if ( values.hasOwnProperty( key ) )
-					{
-						const value = values[ key ];
+			Object.keys(this.defaultValues).forEach((key) => {
+				const val = this.storage.getItem(key)
+				val && (result[key] = val)
+			})
 
-						if ( value !== undefined || value !== null )
-						{
-							newState[ key ] = value;
-						}
-					}
-				})
-
-				this.setState( newState )
-				resolve( newState )
-			}
-
-			
-			// Chrome uses callbacks, Firefox uses Promises, so this is cross-browser solution
-			const keys = Object.keys( this.defaultValues );
-			const storage = this.storage.get( keys, callback )
-			
-			if ( storage && storage.then )
-			{
-				storage.then( callback )
-			}
+			resolve(result)
 		})
 	}
 
@@ -86,7 +58,12 @@ export class SettingsStore
 	pushSettings( settings )
 	{
 		this.setState( settings )
-		this.storage.set( this.state )
+
+		Object.keys(settings).forEach((key) => {
+			const val = settings[key]
+			val && this.storage.setItem(key, val)
+		})
+
 		this.pubsub.publish( EVENT_SETTINGS_CHANGED, Object.assign( {}, this.state ) );
 	}
 
