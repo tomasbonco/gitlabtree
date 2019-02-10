@@ -1,9 +1,16 @@
 {
-	"compilerOptions": {
-		"experimentalDecorators": true,
-		"emitDecoratorMetadata": true,
-		"jsx": "react",
-		"jsxFactory": "h",
-		"target": "es6"
-	}
+    "compilerOptions": {
+        "module": "commonjs",
+        "target": "esnext",
+        "sourceMap": true,
+        "inlineSources": true,
+        "jsx": "react",
+        "importHelpers": true,
+        "emitDecoratorMetadata": true,
+        "experimentalDecorators": true
+    },
+    "exclude": [
+        "node_modules",
+        "dist"
+    ]
 }

@@ -1,12 +1,22 @@
-.gitlab-tree-plugin-wrapper
+.gitlab-tree-plugin__wrapper
 {
 	display: flex;
-	align-items: flex-start;
+	align-items: stretch;
 }
 
 .gitlab-tree-plugin--is-hidden
 {
 	display: none !important;
+}
+
+
+/*
+	Override: Only on Gitlab 11+
+*/
+.diff-tree-list .gitlab-tree-plugin__left
+{
+	top: 100px;
+	max-height: calc(100vh - 100px);
 }
 
 .gitlab-tree-plugin__left
@@ -17,22 +27,128 @@
 		* menu
 	*/
 
-	flex: 0 0 250px;
-	border: 1px solid #e5e5e5;
-	border-radius: 4px;
-	margin-bottom: 16px;
-	margin-right: 15px;
-	overflow: auto;
+	flex: 0 0 304px;
+
+	// Testing this
+	position: sticky;
+	top: 76px;
+	max-height: calc(100vh - 76px);
+	// Test ends here
+
+	display: flex;
+	flex-direction: column;
+
+	margin-right: 16px;
 	
 	transition: flex 0.15s ease-in;
 
 
-	/* Files */
-
-	.gitlab-tree-plugin__files
+	.gitlab-tree-plugin__header
 	{
+		display: flex;
+		flex: 0 0 34px;
+		margin-bottom: 8px;
+		position: relative;
+
+		&__filter-section
+		{
+			flex: 1;
+		}
+
+		&__input
+		{
+			border-radius: 2px;
+			padding: 6px 10px;
+			padding-left: 30px;
+
+			font-size: 14px;
+			
+			display: block;
+			width: 100%;
+			height: 34px;
+			line-height: 20px;
+			color: #2e2e2e;
+			background-color: #fff;
+			background-clip: padding-box;
+			border: 1px solid #dfdfdf;
+			transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out, padding-left 0.15s ease-in-out;
+
+			&--is-open
+			{
+				padding-left: 6px;
+			}
+
+			&:focus
+			{
+				color: #2e2e2e;
+				background-color: #fff;
+				border-color: #80bdff;
+				outline: 0;
+				box-shadow: 0 0 0 0.2rem rgba(0,123,255,0.25);
+			}
+		}
+
+
+		&__search-icon
+		{
+			position: absolute;
+			top: 10px;
+			left: 10px;
+			fill: #919191;
+		}
+
+
+		&__clear-btn
+		{
+			position: absolute;
+			right: 85px;
+    		top: 8px;
+			background: none;
+			border: 0;
+			outline 0;
+		}
+	}
+
+
+	.gitlab-tree-plugin__list-tree-scroll
+	{
+		flex: 1;
+		padding-top: 8px;
+		padding-bottom: 8px;
+		border-top: 1px solid #e5e5e5;
+		border-bottom: 1px solid #e5e5e5;
+		overflow-y: auto;
 		overflow-x: auto;
+		
 		transition: opacity 0.15s ease-in;
+
+
+		.gitlab-tree-plugin__holder
+		{
+			height: 32px;
+			padding: 4px 0;
+			border-radius: 3px;
+
+			display: flex;
+			align-items: center;
+
+			cursor: pointer;
+
+			&__icon
+			{
+				flex: 0 0 auto;
+				width: 16px;
+				height: 16px;
+				margin-left: 8px;
+				margin-right: 6px;
+			}
+
+			
+			&:hover
+			{
+				background: #f2f2f2;
+			}
+		}
 
 
 		/* Folder */
@@ -46,82 +162,12 @@
 				* files
 
 				Folder can be:
-				* root
 				* collapsed
 				* expanded
 			*/
-			padding-left: 20px;
-			margin-bottom: 10px;
-
-
-			.gitlab-tree-plugin__folder__holder
-			{				
-
-				&:before
-				{
-					font: normal normal normal 14px/1 FontAwesome;
-					content: "\f115";
-					padding-right: 7px;
-				}
-			}
-		
-
-			&--is-root
-			{
-				padding-left: 0px;
-			
-
-				> .gitlab-tree-plugin__folder__holder
-				{
-					white-space: nowrap;
-					text-overflow: ellipsis;
-					overflow: hidden;
-
-					background-color: #fafafa;
-					border-bottom: 1px solid #e5e5e5;
-					margin: 0;
-					text-align: left;
-					padding: 10px 16px;
-					font-weight: bold;
-
-					margin-bottom: 5px;
-				}
-
-				> .gitlab-tree-plugin__folder__content 
-				{
-					overflow: auto;
-					padding-bottom: 5px;
-
-					.gitlab-tree-plugin__file
-					{
-						white-space: nowrap;
-					}
-
-					.gitlab-tree-plugin__folder__holder
-					{
-						white-space: nowrap;
-					}
-
-					> .gitlab-tree-plugin__folder
-					{
-						padding-left: 15px;
-					}
-				}
-
-				> .gitlab-tree-plugin__folder__holder:before
-				{
-					content: "\f07c";
-				}
-			}
-
 
 			&--is-collapsed
 			{
-				> .gitlab-tree-plugin__folder__holder:before
-				{
-					content: "\f114";
-				}
-
 				> .gitlab-tree-plugin__folder__content
 				{
 					display: none;
@@ -147,30 +193,19 @@
 				* name
 			*/
 
-			padding-left: 20px;
-			display: block;
-
-			
-			&--is-renamed, &--is-renamed:hover
+			.gitlab-tree-plugin__file__name
 			{
-				color: #d90;
+				white-space: nowrap; 
+				overflow: hidden;
+				flex: 1;
 			}
 
-			&--is-deleted, &--is-deleted:hover
+			.gitlab-tree-plugin__stats
 			{
-				color: #d12f19;
-			}
+				flex: 0 0 auto;
 
-			&--is-added, &--is-added:hover
-			{
-				color: #4a2;
-			}
-
-			&--is-active
-			{
-				color: #000;
-				font-weight: bold;
-				pointer-events: none;
+				font-size: 12px;
+				margin: 0 8px;
 			}
 
 			&__commented-icon
@@ -180,6 +215,23 @@
 		}
 	}
 
+	.gitlab-tree-plugin__stats__additions
+	{
+		color: #1aaa55;
+	}
+
+	.gitlab-tree-plugin__stats__deletions
+	{
+		color: #db3b21;
+	}
+
+
+	.gitlab-tree-plugin__footer
+	{
+		padding: 10px 0;
+		text-align: center;
+		font-size: 12px;
+	}
 
 	/* Menu */
 
@@ -281,6 +333,75 @@
 }
 
 
+/*
+	Elements
+*/
+
+.gitlab-tree-plugin__icon
+{
+	height: 16px;
+	width: 16px
+}
+
+.gitlab-tree-plugin__btn-group
+{
+	display: inline-flex;
+	vertical-align: middle;
+	margin-left: 8px;
+
+	.gitlab-tree-plugin__btn
+	{
+		flex: 0 1 auto;
+
+		&:first-child
+		{
+			border-top-left-radius: 3px;
+			border-bottom-left-radius: 3px;
+		}
+
+		&:last-child
+		{
+			border-top-right-radius: 3px;
+			border-bottom-right-radius: 3px;
+		}
+
+		+ .gitlab-tree-plugin__btn
+		{
+			border-left: none;
+		}
+	}
+}
+
+.gitlab-tree-plugin__btn
+{
+	font-size: 14px;
+	font-weight: 400;
+	padding: 6px 10px;
+	background-color: #fff;
+	border-color: #e5e5e5;
+
+	text-align: center;
+	white-space: nowrap;
+	vertical-align: middle;
+	user-select: none;
+	border: 1px solid #e5e5e5;
+	line-height: 20px;
+	outline: none !important;
+	
+	&--is-rounded
+	{
+		border-radius: 3px;
+	}
+
+	&--is-active
+	{
+		background-color: #eaeaea;
+		border-color: #e3e3e3;
+		color: #2e2e2e;
+		pointer-events: none;
+	}
+}
+
 
 /*
 	Settings' modal window styling.
@@ -289,12 +410,12 @@
 .gitlab-tree-plugin__settings
 {
 	position: fixed;
-    top: 0;
-    bottom: 0;
-    right: 0;
-    left: 0;
-    background: rgba(0,0,0,0.6);
-    z-index: 999;
+	top: 0;
+	bottom: 0;
+	right: 0;
+	left: 0;
+	background: rgba(0,0,0,0.6);
+	z-index: 999;
 
 	display: flex
 	align-items: center;

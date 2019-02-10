@@ -1,16 +1,24 @@
 {
+  "name": "gitlab-tree-view",
+  "license": "MIT",
   "scripts": {
-    "watch": "parcel src/inject/index.ts src/inject/style.styl --no-hmr --no-source-maps --no-autoinstall",
-    "build": "parcel build src/inject/index.ts src/inject/style.styl --no-source-maps"
-  },
-  "devDependencies": {
-    "parcel-plugin-typescript": "^1.0.0",
-    "stylus": "^0.54.5",
-    "typescript": "^2.9.2"
+    "watch": "parcel src/bootstrap.ts src/style.styl --no-hmr --no-source-maps --no-autoinstall",
+    "build": "parcel build src/bootstrap.ts src/style.styl --no-source-maps"
   },
   "dependencies": {
-    "parcel-bundler": "1.9.7",
-    "reflect-metadata": "^0.1.12",
-    "superfine": "^6.0.1"
+    "fuse.js": "^3.4.1",
+    "lodash": "^4.17.11",
+    "tslib": "^1.9.3",
+    "vue": "^2.5.22",
+    "vuex": "^3.1.0"
+  },
+  "devDependencies": {
+    "@vue/component-compiler-utils": "^2.5.2",
+    "stylus": "^0.54.5",
+    "typescript": "^3.3.1",
+    "vue-template-compiler": "^2.5.22"
+  },
+  "alias": {
+    "vue": "./node_modules/vue/dist/vue.js"
   }
 }
